@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[ME] | Electrical Engineering Portfolio</title>
+  <meta
+    name="description"
+    content="Portfolio website for an electrical engineering co-op student focused on power and energy systems, automation, embedded electronics, and software tools."
+  >
+  <script>document.documentElement.classList.add("js");</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+    rel="stylesheet"
+  >
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page-shell">
+    <header class="topbar">
+      <a class="brand" href="#hero">
+        <span class="brand-mark">EE</span>
+        <span class="brand-copy">
+          <strong>[ME]</strong>
+          <small>Electrical Engineering Student</small>
+        </span>
+      </a>
+
+      <nav class="nav">
+        <a href="#projects">Projects</a>
+        <a href="#skills">Skills</a>
+        <a href="#education">Education</a>
+        <a href="#experience">Experience</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" id="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Power/Energy Systems &middot; Automation &middot; Software Tools</p>
+          <h1>
+            Electrical engineering across
+            <span>energy, embedded systems,</span>
+            and hardware-software integration.
+          </h1>
+          <p class="hero-text">
+            Second-year Electrical Engineering Co-op student with a Computer Science DEC, interested
+            in power and energy systems, embedded electronics, automation, and hardware-software
+            integration. My work spans Arduino data acquisition, Python automation, LTspice circuit
+            simulation, and Unity/C# real-time systems.
+          </p>
+
+          <div class="contact-strip">
+            <span>Montreal, QC</span>
+            <span>[Phone]</span>
+            <span>[Email]</span>
+            <span>[LinkedIn]</span>
+            <span>[GitHub]</span>
+          </div>
+
+          <div class="hero-actions">
+            <a class="button button-primary" href="#projects">Explore Projects</a>
+            <a class="button button-secondary" href="#skills">View Technical Skills</a>
+          </div>
+
+          <ul class="signal-list">
+            <li>
+              <strong>Focus</strong>
+              <span>Power and energy systems, automation, embedded electronics, and software tools</span>
+            </li>
+            <li>
+              <strong>Education</strong>
+              <span>BEng in Electrical Engineering (Co-op) at Concordia University, expected 2029</span>
+            </li>
+            <li>
+              <strong>Languages</strong>
+              <span>English and French</span>
+            </li>
+          </ul>
+        </div>
+
+        <aside class="hero-panel">
+          <div class="panel-grid"></div>
+          <div class="status-card">
+            <p class="panel-label">Current Project Status</p>
+            <div class="status-item">
+              <span>Mini Wind Energy Harvester</span>
+              <b>In Progress</b>
+            </div>
+            <div class="status-item">
+              <span>SigFeed</span>
+              <b>In Progress</b>
+            </div>
+            <div class="status-item">
+              <span>Dream Game</span>
+              <b>Completed</b>
+            </div>
+          </div>
+
+          <div class="scope-card">
+            <p class="panel-label">Technical Stack</p>
+            <div class="chip-row">
+              <span>Python</span>
+              <span>Arduino</span>
+              <span>LTspice</span>
+              <span>Unity</span>
+              <span>C#</span>
+              <span>C++</span>
+              <span>React</span>
+              <span>Node.js</span>
+              <span>Git</span>
+            </div>
+          </div>
+
+          <div class="scope-card">
+            <p class="panel-label">Engineering Foundations</p>
+            <div class="chip-row">
+              <span>Circuit Analysis</span>
+              <span>AC Circuits</span>
+              <span>Op-Amps</span>
+              <span>Digital Logic</span>
+              <span>Data Logging</span>
+              <span>Automation</span>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <section class="section" id="projects">
+        <div class="section-heading">
+          <p class="eyebrow">Featured Work</p>
+          <h2>Projects that connect hardware, software, and engineering analysis.</h2>
+          <p>
+            These projects show how I approach building systems: measured experimentation, technical
+            implementation, and documentation that makes the work easy to follow.
+          </p>
+        </div>
+
+        <div class="project-grid">
+          <article class="project-card project-card-large" data-href="projects/mini-wind-energy-harvester.html" tabindex="0" role="link" aria-label="Open Mini Wind Energy Harvester project page">
+            <div class="card-tag">In Progress</div>
+            <h3>Mini Wind Energy Harvester</h3>
+            <p>
+              Building a fan-driven wind energy test setup using magnets and coils to generate AC
+              electrical output and implementing rectification to obtain usable DC power.
+            </p>
+            <ul class="meta-list">
+              <li>Arduino analog data acquisition with digital multimeter validation</li>
+              <li>Python and Excel for logging, calculations, and performance plots</li>
+              <li>Analysis of airflow, magnetic induction, load resistance, and generated power</li>
+            </ul>
+            <div class="card-actions">
+              <a href="projects/mini-wind-energy-harvester.html">Open project page</a>
+              <span class="card-note">Add a PRD PDF or DOCX to open in a new tab</span>
+            </div>
+          </article>
+
+          <article class="project-card" data-href="projects/dream-game.html" tabindex="0" role="link" aria-label="Open Dream Game project page">
+            <div class="card-tag">Team Project</div>
+            <h3>Dream Game</h3>
+            <p>
+              Collaborated on a Unity game prototype, contributing gameplay systems, procedural
+              movement logic, and real-time combat behavior.
+            </p>
+            <ul class="meta-list">
+              <li>Vector-based inverse kinematics arm simulation</li>
+              <li>Animation systems for procedural limb control</li>
+              <li>Collision-based combat mechanics and hit detection</li>
+            </ul>
+            <div class="card-actions">
+              <a href="projects/dream-game.html">Open project page</a>
+              <span class="card-note">Add a PRD PDF or DOCX to open in a new tab</span>
+            </div>
+          </article>
+
+          <article class="project-card" data-href="projects/sigfeed.html" tabindex="0" role="link" aria-label="Open SigFeed project page">
+            <div class="card-tag">In Progress</div>
+            <h3>SigFeed</h3>
+            <p>
+              Building a personalized news intelligence platform that ingests articles, filters
+              higher-signal information, and automates delivery.
+            </p>
+            <ul class="meta-list">
+              <li>Python pipeline using APIs and web scraping</li>
+              <li>AI-assisted filtering and scoring system</li>
+              <li>Automated workflows for collection, storage, and personalized delivery</li>
+            </ul>
+            <div class="card-actions">
+              <a href="projects/sigfeed.html">Open project page</a>
+              <a href="documents/sigfeed-prd.docx" target="_blank" rel="noreferrer">Open PRD in new tab</a>
+            </div>
+          </article>
+
+          <article class="project-card project-card-wide" data-href="projects/ee-lab-simulation.html" tabindex="0" role="link" aria-label="Open Electrical Engineering Lab and Simulation Work project page">
+            <div class="card-tag">Simulation</div>
+            <h3>Electrical Engineering Lab and Simulation Work</h3>
+            <p>
+              Simulated and analyzed circuits involving resistors, capacitors, inductors, op-amps,
+              AC sources, and transient behavior using LTspice and core circuit analysis methods.
+            </p>
+            <ul class="meta-list">
+              <li>KCL, KVL, Thevenin/Norton equivalents, impedance analysis, and phasors</li>
+              <li>Interpretation of voltage, current, gain, and frequency response</li>
+              <li>Comparison of theory, simulation, and measurement behavior</li>
+            </ul>
+            <div class="card-actions">
+              <a href="projects/ee-lab-simulation.html">Open project page</a>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section split-layout" id="skills">
+        <div class="section-heading compact">
+          <p class="eyebrow">Technical Skills</p>
+          <h2>Programming, tooling, and electrical foundations that support the work.</h2>
+          <p>
+            I like using software to support engineering decisions, whether that means data logging,
+            simulation, automation, or building interfaces around technical systems.
+          </p>
+        </div>
+
+        <div class="doc-stack">
+          <article class="doc-card">
+            <p class="doc-type">Programming</p>
+            <h3>Python, C++, C#, JavaScript, HTML/CSS, Git</h3>
+            <p>
+              Comfortable moving between scripting, source control, web development, and real-time
+              logic depending on the project.
+            </p>
+          </article>
+
+          <article class="doc-card">
+            <p class="doc-type">Frameworks and Tools</p>
+            <h3>Node.js, React, APIs, Excel, LTspice, Unity, Arduino, AI</h3>
+            <p>
+              Experience with API integration, web scraping, breadboarding, engineering calculations,
+              and combining software tools with hardware workflows.
+            </p>
+          </article>
+
+          <article class="doc-card">
+            <p class="doc-type">Electrical</p>
+            <h3>Circuit analysis, AC circuits, op-amps, and digital logic</h3>
+            <p>
+              Applied KCL and KVL, Thevenin and Norton equivalents, phasors, op-amp behavior, and
+              logic gates using ICs across labs and simulations.
+            </p>
+          </article>
+
+          <article class="doc-card">
+            <p class="doc-type">Data and Automation</p>
+            <h3>CSV/Excel processing, data logging, calculations, and plotting</h3>
+            <p>
+              I use lightweight automation and structured analysis to make experiments easier to
+              repeat, compare, and explain.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section split-layout" id="education">
+        <div class="section-heading compact">
+          <p class="eyebrow">Education</p>
+          <h2>Electrical engineering training backed by a computer science foundation.</h2>
+          <p>
+            I am building my engineering base through coursework, simulation, and project work while
+            carrying forward the software perspective from my DEC background.
+          </p>
+        </div>
+
+        <div class="doc-stack">
+          <article class="doc-card">
+            <p class="doc-type">Bachelor of Engineering</p>
+            <h3>Electrical Engineering (Co-op) - Concordia University</h3>
+            <p>Montreal, QC &middot; Expected 2029</p>
+          </article>
+
+          <article class="doc-card">
+            <p class="doc-type">Diploma of College Studies</p>
+            <h3>Computer Science, Pre-University Program</h3>
+            <p>College Lionel-Groulx, Sainte-Therese, QC &middot; 2025</p>
+          </article>
+
+          <article class="doc-card">
+            <p class="doc-type">Languages</p>
+            <h3>English and French</h3>
+            <p>Comfortable working across technical and collaborative settings in both languages.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section split-layout" id="experience">
+        <div class="section-heading compact">
+          <p class="eyebrow">Experience</p>
+          <h2>Technical experimentation supported by teamwork and communication.</h2>
+          <p>
+            My background combines hands-on engineering work with customer-facing experience, which
+            helps me communicate clearly and stay organized when projects get busy.
+          </p>
+        </div>
+
+        <div class="doc-stack">
+          <article class="doc-card">
+            <p class="doc-type">Work Experience</p>
+            <h3>Sales Associate - Ecko Unltd</h3>
+            <p>Rosemere, QC &middot; 2022-2023</p>
+            <ul class="meta-list">
+              <li>Delivered customer service and sales support in a fast-paced retail environment</li>
+              <li>Built communication, teamwork, and problem-solving skills through direct interaction</li>
+              <li>Managed multiple tasks with attention to detail, organization, and professionalism</li>
+            </ul>
+          </article>
+
+          <article class="doc-card">
+            <p class="doc-type">Engineering Strengths</p>
+            <h3>Measured, practical, and documentation-driven</h3>
+            <ul class="meta-list">
+              <li>Strong interest in hardware-software integration and automation</li>
+              <li>Comfortable validating results with measurements, logging, and analysis</li>
+              <li>Enjoy documenting systems so the reasoning is clear and reviewable</li>
+            </ul>
+          </article>
+
+          <article class="doc-card accent-card">
+            <p class="doc-type">Portfolio Direction</p>
+            <h3>Power and energy systems with technical depth</h3>
+            <p>
+              This site is designed to highlight the combination of engineering fundamentals,
+              software tools, and project documentation I want to keep developing through co-op and
+              personal work.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section contact-panel" id="contact">
+        <div>
+          <p class="eyebrow">Next Connection</p>
+          <h2>Let's talk about projects, co-op opportunities, or technical collaboration.</h2>
+          <p class="contact-copy">Montreal, QC &middot; [Phone] &middot; [Email] &middot; [LinkedIn] &middot; [GitHub]</p>
+        </div>
+
+        <div class="contact-actions">
+          <a class="button button-primary" href="mailto:[Email]">Email Me</a>
+          <a class="button button-secondary" href="[LinkedIn]" target="_blank" rel="noreferrer">LinkedIn</a>
+          <a class="button button-secondary" href="[GitHub]" target="_blank" rel="noreferrer">GitHub</a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>Electrical engineering portfolio with a dark circuit-lab visual language.</p>
+      <p>&copy; <span id="year"></span> [ME]</p>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

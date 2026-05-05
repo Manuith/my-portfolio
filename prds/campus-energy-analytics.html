@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini Wind Energy Harvester PRD</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+    rel="stylesheet"
+  >
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body class="doc-page">
+  <main class="doc-shell">
+    <a class="doc-back" href="../projects/mini-wind-energy-harvester.html">Back to project page</a>
+    <section class="doc-hero">
+      <p class="eyebrow">Project Requirement Document</p>
+      <h1>Mini Wind Energy Harvester</h1>
+      <p>
+        A fan-driven wind energy test setup built to study how magnets, coils, rectification, and
+        electrical loading affect the conversion of airflow into usable DC power.
+      </p>
+    </section>
+
+    <section class="doc-layout">
+      <article class="doc-panel">
+        <p class="panel-label">Problem</p>
+        <p>
+          Small-scale energy harvesting concepts are often explained theoretically, but they become
+          more valuable when tested through real measurements, conversion stages, and efficiency
+          tradeoffs.
+        </p>
+      </article>
+
+      <article class="doc-panel">
+        <p class="panel-label">Objective</p>
+        <p>
+          Build a bench-scale system that generates AC output from fan-driven motion, converts it to
+          DC, and records enough data to compare performance under different conditions.
+        </p>
+      </article>
+
+      <article class="doc-panel wide">
+        <p class="panel-label">Core Requirements</p>
+        <ul class="meta-list">
+          <li>Generate measurable AC output using magnets and coils</li>
+          <li>Implement AC-to-DC conversion through rectification</li>
+          <li>Use Arduino for analog data acquisition and a DMM for validation</li>
+          <li>Log and analyze readings with Python and Excel</li>
+          <li>Compare the effects of airflow, magnetic induction, and load resistance</li>
+        </ul>
+      </article>
+
+      <article class="doc-panel">
+        <p class="panel-label">Tools</p>
+        <ul class="meta-list">
+          <li>Arduino</li>
+          <li>Python and Excel</li>
+          <li>Digital multimeter</li>
+          <li>Electrical measurement and circuit components</li>
+        </ul>
+      </article>
+
+      <article class="doc-panel">
+        <p class="panel-label">Success Criteria</p>
+        <ul class="meta-list">
+          <li>Stable data capture across multiple test conditions</li>
+          <li>Clear comparison between generated AC and rectified DC output</li>
+          <li>Useful plots and calculations that explain system performance</li>
+        </ul>
+      </article>
+    </section>
+  </main>
+</body>
+</html>
