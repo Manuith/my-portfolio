@@ -90,6 +90,12 @@ a {
   backdrop-filter: blur(18px);
 }
 
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
 .brand {
   display: inline-flex;
   align-items: center;
@@ -116,6 +122,39 @@ a {
 
 .brand-copy strong {
   font-size: 0.98rem;
+}
+
+.brand-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.icon-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: 1px solid rgba(88, 211, 255, 0.18);
+  background: rgba(7, 12, 18, 0.62);
+  color: #f1f5f8;
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+
+.icon-link:hover,
+.icon-link:focus-visible {
+  transform: translateY(-2px);
+  border-color: rgba(81, 241, 185, 0.34);
+  background: rgba(9, 17, 24, 0.92);
+  outline: none;
+}
+
+.icon-link svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
 }
 
 .brand-copy small,
@@ -929,6 +968,7 @@ a {
   }
 
   .topbar,
+  .topbar-left,
   .nav,
   .hero-actions,
   .contact-actions,
