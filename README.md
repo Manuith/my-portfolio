@@ -18,7 +18,7 @@ A dark, electronics-inspired portfolio site for showcasing:
 
 ## Customize
 
-Update these first:
+Update these first: 
 
 - your name in `index.html`
 - your email and GitHub link in `index.html`
