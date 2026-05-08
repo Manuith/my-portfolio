@@ -1,11 +1,11 @@
 # Engineering Portfolio
 
-A dark, electronics-inspired portfolio site for showcasing:
+My portfolio site to showcase:
 
 - featured engineering projects
 - product requirement documents
 - dedicated project detail pages with progress notes
-- your profile as an electrical engineering student
+- my profile as an electrical engineering student
 
 ## Files
 
@@ -18,7 +18,7 @@ A dark, electronics-inspired portfolio site for showcasing:
 
 ## Customize
 
-Update these first: 
+Things to update first: 
 
 - your name in `index.html`
 - your email and GitHub link in `index.html`
@@ -28,7 +28,7 @@ Update these first:
 
 ## PRD Documents
 
-Project pages are set up to link directly to PRD files in a new tab instead of using separate PRD web pages.
+Project pages link directly to PRD files in a new tab instead of separate PRD web pages.
 
 - place your `.docx` or `.pdf` files in `documents/`
 - update each project page in `projects/` to link to the matching file
