@@ -4,31 +4,6 @@ if (yearElement) {
   yearElement.textContent = new Date().getFullYear();
 }
 
-const projectCards = document.querySelectorAll(".project-card[data-href]");
-
-for (const card of projectCards) {
-  const href = card.getAttribute("data-href");
-
-  if (!href) {
-    continue;
-  }
-
-  card.addEventListener("click", (event) => {
-    if (event.target instanceof Element && event.target.closest("a")) {
-      return;
-    }
-
-    window.location.href = href;
-  });
-
-  card.addEventListener("keydown", (event) => {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      window.location.href = href;
-    }
-  });
-}
-
 const revealItems = document.querySelectorAll(".reveal");
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -64,6 +39,59 @@ if (revealItems.length > 0) {
     }
   }
 }
+
+const detailSection = document.querySelector("#project-details");
+const detailCards = document.querySelectorAll("[data-detail-card]");
+const detailTriggers = document.querySelectorAll("[data-detail]");
+
+const openDetailCard = (detailId) => {
+  if (!detailId || !detailSection) {
+    return;
+  }
+
+  detailCards.forEach((card) => {
+    card.classList.toggle("is-active", card.id === detailId);
+  });
+
+  detailTriggers.forEach((trigger) => {
+    if (!trigger.classList.contains("detail-chip")) {
+      return;
+    }
+
+    trigger.classList.toggle("is-active", trigger.getAttribute("data-detail") === detailId);
+  });
+
+  detailSection.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+detailTriggers.forEach((trigger) => {
+  const detailId = trigger.getAttribute("data-detail");
+
+  if (!detailId) {
+    return;
+  }
+
+  trigger.addEventListener("click", (event) => {
+    if (
+      trigger.classList.contains("project-card") &&
+      event.target instanceof Element &&
+      event.target.closest("a, button")
+    ) {
+      return;
+    }
+
+    openDetailCard(detailId);
+  });
+
+  if (trigger.classList.contains("project-card")) {
+    trigger.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        openDetailCard(detailId);
+      }
+    });
+  }
+});
 
 const galleries = document.querySelectorAll("[data-gallery]");
 
