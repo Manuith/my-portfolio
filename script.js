@@ -104,6 +104,15 @@
         let pan = { x: 0, y: 0 };
         let zoom = 1;
         let drag = { active: false, sx: 0, sy: 0, px: 0, py: 0 };
+        let touchState = {
+            mode: null,
+            startZoom: 1,
+            startDistance: 0,
+            startPan: { x: 0, y: 0 },
+            startCenter: { x: 0, y: 0 },
+            tapStart: { x: 0, y: 0 },
+            tapMoved: false,
+        };
         let introComplete = false;
 
         function lerp(a, b, t) {
@@ -599,6 +608,112 @@
             zoom = nz;
         }
 
+        function getTouchDistance(a, b) {
+            return Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY);
+        }
+
+        function getTouchCenter(a, b) {
+            return {
+                x: (a.clientX + b.clientX) / 2,
+                y: (a.clientY + b.clientY) / 2,
+            };
+        }
+
+        function onTouchStart(e) {
+            if (e.touches.length === 1) {
+                const touch = e.touches[0];
+                drag = { active: true, sx: touch.clientX, sy: touch.clientY, px: pan.x, py: pan.y };
+                touchState = {
+                    mode: 'pan',
+                    startZoom: zoom,
+                    startDistance: 0,
+                    startPan: { x: pan.x, y: pan.y },
+                    startCenter: { x: touch.clientX, y: touch.clientY },
+                    tapStart: { x: touch.clientX, y: touch.clientY },
+                    tapMoved: false,
+                };
+                return;
+            }
+
+            if (e.touches.length === 2) {
+                e.preventDefault();
+                const [a, b] = e.touches;
+                touchState = {
+                    mode: 'pinch',
+                    startZoom: zoom,
+                    startDistance: getTouchDistance(a, b),
+                    startPan: { x: pan.x, y: pan.y },
+                    startCenter: getTouchCenter(a, b),
+                    tapStart: { x: 0, y: 0 },
+                    tapMoved: true,
+                };
+                drag.active = false;
+            }
+        }
+
+        function onTouchMove(e) {
+            if (touchState.mode === 'pan' && e.touches.length === 1) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                pan.x = drag.px + (touch.clientX - drag.sx);
+                pan.y = drag.py + (touch.clientY - drag.sy);
+
+                if (Math.abs(touch.clientX - touchState.tapStart.x) > 8 || Math.abs(touch.clientY - touchState.tapStart.y) > 8) {
+                    touchState.tapMoved = true;
+                }
+                return;
+            }
+
+            if (e.touches.length === 2) {
+                e.preventDefault();
+                const [a, b] = e.touches;
+                const distance = Math.max(getTouchDistance(a, b), 1);
+                const center = getTouchCenter(a, b);
+                const nextZoom = Math.min(Math.max(touchState.startZoom * (distance / Math.max(touchState.startDistance, 1)), 0.3), 4);
+                const ratio = nextZoom / touchState.startZoom;
+
+                pan.x = center.x - ratio * (touchState.startCenter.x - touchState.startPan.x);
+                pan.y = center.y - ratio * (touchState.startCenter.y - touchState.startPan.y);
+                zoom = nextZoom;
+                touchState.tapMoved = true;
+            }
+        }
+
+        function onTouchEnd(e) {
+            if (touchState.mode === 'pinch' && e.touches.length === 1) {
+                const touch = e.touches[0];
+                drag = { active: true, sx: touch.clientX, sy: touch.clientY, px: pan.x, py: pan.y };
+                touchState = {
+                    mode: 'pan',
+                    startZoom: zoom,
+                    startDistance: 0,
+                    startPan: { x: pan.x, y: pan.y },
+                    startCenter: { x: touch.clientX, y: touch.clientY },
+                    tapStart: { x: touch.clientX, y: touch.clientY },
+                    tapMoved: true,
+                };
+                return;
+            }
+
+            if (touchState.mode === 'pan' && e.touches.length === 0) {
+                drag.active = false;
+                if (!touchState.tapMoved) {
+                    const hit = hitTest(touchState.tapStart.x, touchState.tapStart.y);
+                    if (hit?.label) {
+                        if (hit.section === 'projects' && activeNode?.id !== 'projects') activeProjectIndex = 0;
+                        activeNode = hit;
+                        updatePanel();
+                        updateStatusDock();
+                    }
+                }
+            }
+
+            if (e.touches.length === 0) {
+                drag.active = false;
+                touchState.mode = null;
+            }
+        }
+
         // ============================================================================
         // Panel Content
         // ============================================================================
@@ -960,7 +1075,7 @@
             } else {
                 title.textContent = 'Portfolio Map';
                 subtitle.textContent = 'Instructions';
-                detail.textContent = 'Scroll to zoom · drag to pan · click node to explore';
+                detail.textContent = 'Scroll or pinch to zoom · drag to pan · tap node to explore';
             }
         }
 
@@ -1083,6 +1198,10 @@
             canvas.addEventListener('mouseup', onMouseUp);
             canvas.addEventListener('mouseleave', onMouseLeave);
             canvas.addEventListener('wheel', onWheel, { passive: false });
+            canvas.addEventListener('touchstart', onTouchStart, { passive: false });
+            canvas.addEventListener('touchmove', onTouchMove, { passive: false });
+            canvas.addEventListener('touchend', onTouchEnd, { passive: false });
+            canvas.addEventListener('touchcancel', onTouchEnd, { passive: false });
 
             window.addEventListener('resize', () => {
                 canvas.width = window.innerWidth;
@@ -1139,7 +1258,7 @@
                 <div class="bottom-hint">
                     <div class="bottom-hint-title">Portfolio Map</div>
                     <div class="bottom-hint-subtitle">Instructions</div>
-                    <div class="bottom-hint-detail">Scroll to zoom · drag to pan · click node to explore</div>
+                    <div class="bottom-hint-detail">Scroll or pinch to zoom · drag to pan · tap node to explore</div>
                 </div>
 
                 <div class="missions-dock">
