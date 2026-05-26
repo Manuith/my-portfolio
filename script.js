@@ -2,7 +2,7 @@
         // Portfolio Mind Map - Standalone Version (No Build Required)
         // ============================================================================
 
-        const PCB_GREEN = '#00B85F';
+        const PCB_GREEN = '#51f1b9';
         const NODE_COLORS = {
             root:     PCB_GREEN,
             home:     PCB_GREEN,
@@ -55,14 +55,14 @@
         ];
 
         const NODES = [
-            { id: 'root', label: 'ME', x: 0.50, y: 0.50, color: NODE_COLORS.root, size: 27, section: 'root', description: 'Intro & how to start' },
-            { id: 'home', label: 'Intro', x: 0.50, y: 0.35, color: NODE_COLORS.home, size: 21, parentId: 'root', section: 'home', description: 'Introduction & overview' },
+            { id: 'root', label: 'ME', x: 0.50, y: 0.50, color: NODE_COLORS.root, size: 34, section: 'root', description: 'Intro & how to start' },
+            { id: 'home', label: 'Intro', x: 0.53, y: 0.345, color: NODE_COLORS.home, size: 21, parentId: 'root', section: 'home', description: 'Introduction & overview' },
             { id: 'projects', label: 'Projects', x: 0.60, y: 0.42, color: NODE_COLORS.projects, size: 23, parentId: 'root', section: 'projects', description: 'Selected work & case studies' },
             { id: 'about', label: 'Education', x: 0.61, y: 0.56, color: NODE_COLORS.about, size: 20, parentId: 'root', section: 'about', description: 'School history & academic path' },
             { id: 'skills', label: 'Skills', x: 0.50, y: 0.65, color: NODE_COLORS.skills, size: 22, parentId: 'root', section: 'skills', description: 'Technical expertise' },
             { id: 'contact', label: 'Contact', x: 0.39, y: 0.56, color: NODE_COLORS.contact, size: 20, parentId: 'root', section: 'contact', description: 'Get in touch' },
             { id: 'resume', label: 'Resume/CV', x: 0.40, y: 0.42, color: NODE_COLORS.resume, size: 19, parentId: 'root', section: 'resume', description: 'Resume/CV' },
-            { id: 'work', label: 'Experience', x: 0.468, y: 0.36, color: NODE_COLORS.work, size: 21, parentId: 'root', section: 'work', description: 'Work history' },
+            { id: 'work', label: 'Experience', x: 0.425, y: 0.362, color: NODE_COLORS.work, size: 21, parentId: 'root', section: 'work', description: 'Work history' },
             /* Ambient nodes
             { id: 'a1', label: '', x: 0.15, y: 0.25, color: '#666', size: 4, section: 'root' },
             { id: 'a2', label: '', x: 0.35, y: 0.12, color: '#666', size: 3, section: 'root' },
@@ -93,6 +93,7 @@
 
         const PARTICLE_COUNT = 340;
         const LERP = 0.09;
+        const TOUCH_TAP_SLOP = 18;
 
         let canvas, ctx;
         let particles = [];
@@ -104,6 +105,7 @@
         let pan = { x: 0, y: 0 };
         let zoom = 1;
         let drag = { active: false, sx: 0, sy: 0, px: 0, py: 0 };
+        let dashOffset = 0;
         let touchState = {
             mode: null,
             startZoom: 1,
@@ -111,6 +113,7 @@
             startPan: { x: 0, y: 0 },
             startCenter: { x: 0, y: 0 },
             tapStart: { x: 0, y: 0 },
+            lastPoint: { x: 0, y: 0 },
             tapMoved: false,
         };
         let introComplete = false;
@@ -151,16 +154,17 @@
         }
 
         function getNodeBox(node, state, prominent = false) {
-            const fs = prominent ? Math.max(13, 11 + node.size * 0.3) : (node.id === 'root' ? 13 : 11);
+            const baseFs = node.id === 'root' ? 13 : 11;
+            const fs = prominent ? Math.max(baseFs + 1, baseFs + node.size * 0.12) : baseFs;
             ctx.save();
             ctx.font = `${prominent ? '500' : '400'} ${fs}px 'JetBrains Mono', monospace`;
             const tw = ctx.measureText(node.label).width;
             ctx.restore();
 
-            const px = prominent ? 14 : 12;
-            const py = prominent ? 10 : 8;
-            const width = Math.max(node.size * 2.5, tw + px * 2);
-            const height = fs + py * 2;
+            const px = node.id === 'root' ? 16 : (prominent ? 14 : 12);
+            const py = node.id === 'root' ? 10 : (prominent ? 10 : 8);
+            const width = Math.max(node.id === 'root' ? 86 : 76, tw + px * 2);
+            const height = Math.max(node.id === 'root' ? 34 : 28, fs + py * 2);
 
             return { fs, tw, width, height };
         }
@@ -170,19 +174,14 @@
             const zoomScale = getNodeZoomScale();
             const labelWidth = metrics.width * (state?.scale ?? 1) * zoomScale;
             const labelHeight = metrics.height * (state?.scale ?? 1) * zoomScale;
-            const radius = node.size * (state?.scale ?? 1) * zoomScale * 0.78;
             const p = nodePos(node);
-            const side = node.x >= 0.5 ? 1 : -1;
-            const gap = 14 * zoomScale;
-            const centerX = p.x + side * (radius + gap + labelWidth / 2);
+            const centerX = p.x;
             const centerY = p.y;
 
             return {
                 ...metrics,
-                radius,
                 labelWidth,
                 labelHeight,
-                side,
                 centerX,
                 centerY,
                 x: centerX - labelWidth / 2,
@@ -191,16 +190,39 @@
         }
 
         function getNodeAnchor(node, state, towardPoint) {
-            const p = nodePos(node);
-            const dx = towardPoint.x - p.x;
-            const dy = towardPoint.y - p.y;
-            const zoomScale = getNodeZoomScale();
+            if (node.id === 'root') {
+                const p = nodePos(node);
+                const zoomScale = getNodeZoomScale();
+                const radius = node.size * (state?.scale ?? 1) * zoomScale * 0.58;
+                const dx = towardPoint.x - p.x;
+                const dy = towardPoint.y - p.y;
+                const len = Math.hypot(dx, dy) || 1;
 
-            const r = node.size * (state?.scale ?? 1) * zoomScale * (node.id === 'root' ? 1 : 0.78);
-            const len = Math.hypot(dx, dy) || 1;
+                return {
+                    x: p.x + (dx / len) * radius,
+                    y: p.y + (dy / len) * radius,
+                };
+            }
+
+            const layout = getNodeLabelLayout(node, state, false);
+            const cx = layout.centerX;
+            const cy = layout.centerY;
+            const dx = towardPoint.x - cx;
+            const dy = towardPoint.y - cy;
+            const halfW = layout.labelWidth / 2;
+            const halfH = layout.labelHeight / 2;
+
+            if (Math.abs(dx) < 0.001 && Math.abs(dy) < 0.001) {
+                return { x: cx, y: cy };
+            }
+
+            const scaleX = halfW / Math.max(Math.abs(dx), 0.001);
+            const scaleY = halfH / Math.max(Math.abs(dy), 0.001);
+            const scale = Math.min(scaleX, scaleY);
+
             return {
-                x: p.x + (dx / len) * r,
-                y: p.y + (dy / len) * r,
+                x: cx + dx * scale,
+                y: cy + dy * scale,
             };
         }
 
@@ -244,12 +266,14 @@
                 const p = nodePos(n);
                 const s = nodeStates.get(n.id)?.scale ?? 1;
                 const d = Math.hypot(sx - p.x, sy - p.y);
-                const nodeRadius = n.size * s * zoomScale * (n.id === 'root' ? 1 : 0.82);
-                let hit = d < nodeRadius * 1.6;
+                const nodeRadius = n.size * s * zoomScale * (n.id === 'root' ? 0.62 : 0.82);
+                const touchMultiplier = touchState.mode ? 2.15 : 1.6;
+                let hit = d < nodeRadius * touchMultiplier;
 
                 if (!hit && n.id !== 'root') {
                     const layout = getNodeLabelLayout(n, nodeStates.get(n.id), false);
-                    hit = sx >= layout.x && sx <= layout.x + layout.labelWidth && sy >= layout.y && sy <= layout.y + layout.labelHeight;
+                    const pad = touchState.mode ? 10 : 0;
+                    hit = sx >= layout.x - pad && sx <= layout.x + layout.labelWidth + pad && sy >= layout.y - pad && sy <= layout.y + layout.labelHeight + pad;
                 }
 
                 if (hit && d < bestD) {
@@ -279,6 +303,7 @@
             }
 
             // Edges
+            dashOffset -= 0.22;
             for (const edge of EDGES) {
                 const fn = NODES.find(n => n.id === edge.from);
                 const tn = NODES.find(n => n.id === edge.to);
@@ -292,94 +317,32 @@
                 const toState = nodeStates.get(tn.id);
                 const start = getNodeAnchor(fn, fromState, tp);
                 const end = getNodeAnchor(tn, toState, fp);
-                const dx = end.x - start.x;
-                const dy = end.y - start.y;
-
-                const signX = Math.sign(dx) || 1;
-                const signY = Math.sign(dy) || 1;
-                const horizontal = Math.abs(dx) >= Math.abs(dy);
-                const lane = TRACE_LANE_OFFSETS[tn.id] ?? { x: 0, y: 0 };
-
-                let points;
-                let endRun;
-                const addPoint = (list, point) => {
-                    const prev = list[list.length - 1];
-                    if (!prev || prev.x !== point.x || prev.y !== point.y) list.push(point);
-                };
-                if (horizontal) {
-                    const branchX = start.x + signX * 16;
-                    const laneY = start.y + lane.y;
-                    const laneX = start.x + dx * (tn.id === 'work' ? 0.36 : 0.30) + lane.x * 0.38;
-                    const midX = start.x + dx * (tn.id === 'work' ? 0.48 : 0.56);
-                    points = [];
-                    addPoint(points, start);
-                    addPoint(points, { x: branchX, y: start.y });
-                    addPoint(points, { x: branchX, y: laneY });
-                    addPoint(points, { x: laneX, y: laneY });
-                    addPoint(points, { x: midX, y: laneY });
-
-                    if (SINGLE_DIAGONAL_APPROACH_IDS.has(tn.id)) {
-                        endRun = end;
-                    } else if (FINAL_DIAGONAL_APPROACH_IDS.has(tn.id)) {
-                        const approachYOffset = laneY < end.y ? -14 : 14;
-                        endRun = { x: end.x - signX * 16, y: end.y };
-                        addPoint(points, { x: midX, y: end.y + approachYOffset });
-                    } else {
-                        endRun = { x: end.x - signX * 16, y: end.y };
-                        addPoint(points, { x: midX, y: end.y });
-                    }
-
-                    addPoint(points, endRun);
-                    addPoint(points, end);
-                } else {
-                    const branchY = start.y + signY * 16;
-                    const laneX = start.x + lane.x;
-                    const laneY = start.y + dy * 0.30 + lane.y * 0.38;
-                    const midY = start.y + dy * 0.56;
-                    endRun = { x: end.x, y: end.y - signY * 16 };
-                    points = [];
-                    addPoint(points, start);
-                    addPoint(points, { x: start.x, y: branchY });
-                    addPoint(points, { x: laneX, y: branchY });
-                    addPoint(points, { x: laneX, y: laneY });
-                    addPoint(points, { x: laneX, y: midY });
-                    addPoint(points, { x: end.x, y: midY });
-                    addPoint(points, endRun);
-                    addPoint(points, end);
-                }
-
-                const tracePoints = getBeveledTracePoints(points, 6);
+                const seed = (fn.id.charCodeAt(0) * 3 + tn.id.charCodeAt(0) * 7) % 60 - 30;
+                const cx = (start.x + end.x) / 2 + seed;
+                const cy = (start.y + end.y) / 2 + seed * 0.6;
 
                 ctx.save();
                 ctx.beginPath();
-                ctx.moveTo(tracePoints[0].x, tracePoints[0].y);
-                for (let i = 1; i < tracePoints.length; i++) {
-                    ctx.lineTo(tracePoints[i].x, tracePoints[i].y);
+                ctx.moveTo(start.x, start.y);
+                ctx.quadraticCurveTo(cx, cy, end.x, end.y);
+
+                if (isActive) {
+                    ctx.strokeStyle = 'rgba(255,255,255,0.95)';
+                    ctx.lineWidth = 1.1;
+                    ctx.setLineDash([4, 8]);
+                } else if (isHov) {
+                    ctx.strokeStyle = 'rgba(255,255,255,0.82)';
+                    ctx.lineWidth = 0.9;
+                    ctx.setLineDash([3, 7]);
+                } else {
+                    ctx.strokeStyle = 'rgba(220,220,220,0.24)';
+                    ctx.lineWidth = 0.9;
+                    ctx.setLineDash([2, 7]);
                 }
 
-                ctx.strokeStyle = isActive ? 'rgba(255,255,255,0.96)' : isHov ? 'rgba(255,255,255,0.84)' : 'rgba(255,255,255,0.56)';
-                ctx.lineWidth = isActive ? 2.1 : isHov ? 1.7 : 1.25;
-                ctx.lineJoin = 'miter';
-                ctx.lineCap = 'square';
+                ctx.lineDashOffset = dashOffset;
                 ctx.stroke();
-
-                const viaSize = isActive ? 3 : 2.5;
-                ctx.fillStyle = isActive ? 'rgba(255,255,255,0.92)' : 'rgba(255,255,255,0.68)';
-                ctx.fillRect(endRun.x - viaSize / 2, endRun.y - viaSize / 2, viaSize, viaSize);
-
-                if (tn.id !== 'root') {
-                    const terminal = 6;
-                    const tx = end.x + (horizontal ? (dx > 0 ? terminal : -terminal) : 0);
-                    const ty = end.y + (horizontal ? 0 : (dy > 0 ? terminal : -terminal));
-                    ctx.beginPath();
-                    ctx.moveTo(end.x, end.y);
-                    ctx.lineTo(tx, ty);
-                    ctx.strokeStyle = 'rgba(255,255,255,0.98)';
-                    ctx.lineWidth = isActive ? 2.2 : 1.7;
-                    ctx.stroke();
-                    ctx.fillRect(end.x - 2.5, end.y - 2.5, 5, 5);
-                }
-
+                ctx.setLineDash([]);
                 ctx.restore();
             }
 
@@ -391,151 +354,65 @@
 
             // Nodes
             for (const node of NODES) {
-                const state = nodeStates.get(node.id);
-                if (!state) continue;
-
-                const p = nodePos(node);
-                const zoomScale = getNodeZoomScale();
-                const r = node.size * state.scale * zoomScale * (node.id === 'root' ? 1 : 0.78);
-                const isActive = activeNode?.id === node.id;
-                const isHov = hoveredNode?.id === node.id;
-                const prominent = isActive || isHov;
-
-                ctx.save();
-                ctx.translate(p.x, p.y);
-
-                // Glow
-                if (state.glowOpacity > 0.04 || isActive) {
-                    const rgb = hexToRgb(node.color.startsWith('#') ? node.color : '#ffffff');
-                    if (rgb) {
-                        const ga = isActive ? 0.22 : state.glowOpacity * 0.18;
-                        const gr = r * (isActive ? 4.5 : 3.8);
-                        const grad = ctx.createRadialGradient(0, 0, r * 0.2, 0, 0, gr);
-                        grad.addColorStop(0, `rgba(${rgb.r},${rgb.g},${rgb.b},${ga})`);
-                        grad.addColorStop(1, `rgba(${rgb.r},${rgb.g},${rgb.b},0)`);
-                        ctx.beginPath();
-                        ctx.arc(0, 0, gr, 0, Math.PI * 2);
-                        ctx.fillStyle = grad;
-                        ctx.fill();
-                    }
-                }
-
-                if (node.id !== 'root' && node.label) {
-                    ctx.beginPath();
-                    ctx.arc(0, 0, r, 0, Math.PI * 2);
-                    ctx.fillStyle = prominent ? 'rgba(8,8,8,0.98)' : 'rgba(10,10,10,0.94)';
-                    ctx.strokeStyle = node.color;
-                    ctx.lineWidth = prominent ? 2.8 : 2.2;
-                    ctx.globalAlpha = isActive ? 1 : (isHov ? 0.98 : 0.92);
-                    ctx.fill();
-                    ctx.stroke();
-
-                    ctx.beginPath();
-                    ctx.arc(0, 0, Math.max(3.6, r * 0.34), 0, Math.PI * 2);
-                    ctx.fillStyle = prominent ? 'rgba(255,255,255,0.96)' : 'rgba(235,235,235,0.9)';
-                    ctx.fill();
-
-                    ctx.beginPath();
-                    ctx.arc(-r * 0.95, 0, Math.max(1.2, r * 0.09), 0, Math.PI * 2);
-                    ctx.fillStyle = node.color;
-                    ctx.globalAlpha = 0.95;
-                    ctx.fill();
-
-                    ctx.globalAlpha = 1;
-                    ctx.restore();
-                    continue;
-                }
-
-                // Arc ring
-                const gap = 0.20;
-                const as = Math.PI * gap;
-                const ae = Math.PI * (2 - gap);
-
-                ctx.beginPath();
-                ctx.arc(0, 0, r, as, ae);
-                ctx.strokeStyle = node.color;
-                ctx.lineWidth = node.id === 'root' ? 2.5 : (isHov || isActive) ? 2.0 : 1.6;
-                ctx.globalAlpha = isActive ? 1 : (isHov ? 0.95 : 0.80);
-                ctx.stroke();
-
-                // End dots
-                const dotR = Math.max(1.2, 1.8 * Math.min(state.scale, 1.5));
-                [[Math.cos(as) * r, Math.sin(as) * r], [Math.cos(ae) * r, Math.sin(ae) * r]].forEach(([dx, dy]) => {
-                    ctx.beginPath();
-                    ctx.arc(dx, dy, dotR, 0, Math.PI * 2);
-                    ctx.fillStyle = node.color;
-                    ctx.globalAlpha = isActive ? 1 : 0.85;
-                    ctx.fill();
-                });
-
-                if (node.id === 'root') {
-                    ctx.beginPath();
-                    ctx.arc(0, 0, 3.5, 0, Math.PI * 2);
-                    ctx.fillStyle = 'rgba(255,255,255,0.85)';
-                    ctx.globalAlpha = 1;
-                    ctx.fill();
-                }
-
-                ctx.globalAlpha = 1;
-                ctx.restore();
-            }
-
-            // Labels
-            for (const node of NODES) {
                 if (!node.label) continue;
                 const state = nodeStates.get(node.id);
                 if (!state) continue;
 
-                const p = nodePos(node);
                 const zoomScale = getNodeZoomScale();
-                const r = node.size * state.scale * zoomScale;
                 const isActive = activeNode?.id === node.id;
                 const isHov = hoveredNode?.id === node.id;
                 const prominent = isActive || isHov;
+                const p = nodePos(node);
 
-                if (node.id !== 'root') {
-                    const layout = getNodeLabelLayout(node, state, prominent);
+                if (node.id === 'root') {
+                    const radius = node.size * state.scale * zoomScale * 0.58;
+
                     ctx.save();
-                    ctx.font = `${prominent ? '500' : '400'} ${Math.round(layout.fs * state.scale * zoomScale)}px 'JetBrains Mono', monospace`;
+                    ctx.font = `${prominent ? '500' : '400'} ${Math.round(14 * state.scale * zoomScale)}px 'JetBrains Mono', monospace`;
                     ctx.textBaseline = 'middle';
                     ctx.textAlign = 'center';
 
-                    ctx.fillStyle = prominent ? 'rgba(12,12,12,0.96)' : 'rgba(14,14,14,0.82)';
-                    ctx.fillRect(layout.x, layout.y, layout.labelWidth, layout.labelHeight);
+                    const glowAlpha = isActive ? 0.22 : isHov ? 0.14 : 0.06;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, radius + 4, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(81,241,185,${glowAlpha})`;
+                    ctx.fill();
 
-                    ctx.strokeStyle = prominent ? node.color : 'rgba(255,255,255,0.07)';
-                    ctx.lineWidth = prominent ? 1 : 0.5;
-                    ctx.strokeRect(layout.x, layout.y, layout.labelWidth, layout.labelHeight);
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(24,24,24,0.94)';
+                    ctx.fill();
 
-                    ctx.fillStyle = prominent ? node.color : 'rgba(225,225,225,0.82)';
-                    ctx.fillText(node.label, layout.centerX, layout.centerY + 1);
+                    ctx.strokeStyle = isActive ? 'rgba(81,241,185,0.96)' : isHov ? 'rgba(81,241,185,0.72)' : 'rgba(81,241,185,0.28)';
+                    ctx.lineWidth = isActive ? 1.4 : isHov ? 1.05 : 0.9;
+                    ctx.stroke();
+
+                    ctx.fillStyle = isActive ? '#ffffff' : isHov ? 'rgba(232,255,247,0.96)' : 'rgba(81,241,185,0.72)';
+                    ctx.fillText(node.label, p.x, p.y + 1);
                     ctx.restore();
                     continue;
                 }
 
-                const fs = prominent ? Math.max(12, 10 + node.size * 0.3) : (node.id === 'root' ? 12 : 10);
+                const layout = getNodeLabelLayout(node, state, prominent);
 
                 ctx.save();
-                ctx.font = `${prominent ? '500' : '400'} ${fs}px 'JetBrains Mono', monospace`;
+                ctx.font = `${prominent ? '500' : '400'} ${Math.round(layout.fs * state.scale * zoomScale)}px 'JetBrains Mono', monospace`;
                 ctx.textBaseline = 'middle';
+                ctx.textAlign = 'center';
 
-                const tw = ctx.measureText(node.label).width;
-                const px = 7, py = 3;
-                const lx = p.x - tw / 2 - px;
-                const ly = p.y + r + 15;
-                const lw = tw + px * 2;
-                const lh = fs + py * 2;
+                const glowAlpha = isActive ? 0.22 : isHov ? 0.14 : 0.05;
+                ctx.fillStyle = `rgba(81,241,185,${glowAlpha})`;
+                ctx.fillRect(layout.x - 3, layout.y - 3, layout.labelWidth + 6, layout.labelHeight + 6);
 
-                ctx.fillStyle = prominent ? 'rgba(12,12,12,0.96)' : 'rgba(14,14,14,0.82)';
-                ctx.fillRect(lx, ly - lh / 2, lw, lh);
+                ctx.fillStyle = prominent ? 'rgba(18,18,18,0.97)' : 'rgba(24,24,24,0.90)';
+                ctx.fillRect(layout.x, layout.y, layout.labelWidth, layout.labelHeight);
 
-                ctx.strokeStyle = prominent ? node.color : 'rgba(255,255,255,0.07)';
-                ctx.lineWidth = prominent ? 1 : 0.5;
-                ctx.strokeRect(lx, ly - lh / 2, lw, lh);
+                ctx.strokeStyle = isActive ? 'rgba(81,241,185,0.96)' : isHov ? 'rgba(81,241,185,0.72)' : 'rgba(81,241,185,0.26)';
+                ctx.lineWidth = isActive ? 1.2 : isHov ? 1 : 0.85;
+                ctx.strokeRect(layout.x, layout.y, layout.labelWidth, layout.labelHeight);
 
-                ctx.fillStyle = prominent ? node.color : 'rgba(225,225,225,0.82)';
-                ctx.fillText(node.label, p.x - tw / 2, ly);
-
+                ctx.fillStyle = isActive ? '#ffffff' : isHov ? 'rgba(232,255,247,0.96)' : 'rgba(81,241,185,0.72)';
+                ctx.fillText(node.label, layout.centerX, layout.centerY + 1);
                 ctx.restore();
             }
         }
@@ -621,6 +498,7 @@
 
         function onTouchStart(e) {
             if (e.touches.length === 1) {
+                e.preventDefault();
                 const touch = e.touches[0];
                 drag = { active: true, sx: touch.clientX, sy: touch.clientY, px: pan.x, py: pan.y };
                 touchState = {
@@ -630,6 +508,7 @@
                     startPan: { x: pan.x, y: pan.y },
                     startCenter: { x: touch.clientX, y: touch.clientY },
                     tapStart: { x: touch.clientX, y: touch.clientY },
+                    lastPoint: { x: touch.clientX, y: touch.clientY },
                     tapMoved: false,
                 };
                 return;
@@ -645,6 +524,7 @@
                     startPan: { x: pan.x, y: pan.y },
                     startCenter: getTouchCenter(a, b),
                     tapStart: { x: 0, y: 0 },
+                    lastPoint: { x: 0, y: 0 },
                     tapMoved: true,
                 };
                 drag.active = false;
@@ -657,8 +537,9 @@
                 const touch = e.touches[0];
                 pan.x = drag.px + (touch.clientX - drag.sx);
                 pan.y = drag.py + (touch.clientY - drag.sy);
+                touchState.lastPoint = { x: touch.clientX, y: touch.clientY };
 
-                if (Math.abs(touch.clientX - touchState.tapStart.x) > 8 || Math.abs(touch.clientY - touchState.tapStart.y) > 8) {
+                if (Math.hypot(touch.clientX - touchState.tapStart.x, touch.clientY - touchState.tapStart.y) > TOUCH_TAP_SLOP) {
                     touchState.tapMoved = true;
                 }
                 return;
@@ -690,15 +571,17 @@
                     startPan: { x: pan.x, y: pan.y },
                     startCenter: { x: touch.clientX, y: touch.clientY },
                     tapStart: { x: touch.clientX, y: touch.clientY },
+                    lastPoint: { x: touch.clientX, y: touch.clientY },
                     tapMoved: true,
                 };
                 return;
             }
 
             if (touchState.mode === 'pan' && e.touches.length === 0) {
+                e.preventDefault();
                 drag.active = false;
                 if (!touchState.tapMoved) {
-                    const hit = hitTest(touchState.tapStart.x, touchState.tapStart.y);
+                    const hit = hitTest(touchState.lastPoint.x || touchState.tapStart.x, touchState.lastPoint.y || touchState.tapStart.y);
                     if (hit?.label) {
                         if (hit.section === 'projects' && activeNode?.id !== 'projects') activeProjectIndex = 0;
                         activeNode = hit;
@@ -721,20 +604,28 @@
         const PROJECTS_DATA = [
             {
                 name: 'Mini Wind Energy Harvester',
-                role: 'In Progress',
-                imageLabel: 'Wind Test Setup',
+                role: 'Prototype V1',
+                imageLabel: 'Generator Monitoring System',
                 status: 'Progress',
                 images: [
-                    { label: 'Wind Test Setup', note: 'Add your fan-driven generator setup, magnets, coils, or measurement rig here.' },
-                    { label: 'Measurement Detail', note: 'Use this slot for Arduino analog acquisition, multimeter validation, or rectification circuitry.' },
-                    { label: 'Performance Plots', note: 'Use this slot for airflow, load resistance, generated voltage, or output power plots.' }
+                    {
+                        label: 'TinkerCAD Prototype Layout',
+                        note: 'Prototype wiring layout for the brushed DC generator monitoring system.',
+                        src: 'assets/images/projects/tinkercad-v1.png'
+                    },
+                    {
+                        label: 'Arduino Prototype Build',
+                        note: 'Physical Arduino and breadboard test setup used during early load-testing experiments.',
+                        src: 'assets/images/projects/arduino-v1.jpg'
+                    }
                 ],
-                summary: 'Building a fan-driven wind energy test setup using magnets and coils to generate AC electrical output and implementing rectification to obtain usable DC power.',
+                summary: 'Built a small-scale wind energy harvesting prototype using a brushed DC motor as a generator and an Arduino-based monitoring system. This version focused on learning how small generator systems behave under different electrical loads through safe measurement, resistive testing, and hands-on iteration before moving toward larger brushless systems.',
                 stack: ['Arduino', 'Python', 'Excel', 'Energy Systems'],
                 highlights: [
-                    'Arduino analog data acquisition with digital multimeter validation.',
-                    'Python and Excel for logging, calculations, and performance plots.',
-                    'Analysis of airflow, magnetic induction, load resistance, and generated power.'
+                    'Used a brushed DC motor as a small generator to study output behavior under changing resistive loads.',
+                    'Implemented a voltage divider and Arduino ADC monitoring to safely capture voltage, current, and power-related data.',
+                    'Used LEDs as quick visual indicators during testing to observe load-driven changes in generator behavior.',
+                    'Built this version as a hands-on learning step before progressing toward larger brushless generator systems.'
                 ]
             },
             {
@@ -1017,7 +908,10 @@
                         <div class="project-detail-meta">${project.role}</div>
                         <div class="project-card-desc" style="font-size: 11px; color: rgba(255,255,255,0.58);">${project.summary}</div>
                         <div>${tags}</div>
-                        <ul class="project-detail-list">${highlights}</ul>
+                        <details class="project-more">
+                            <summary class="project-more-toggle">See more</summary>
+                            <ul class="project-detail-list">${highlights}</ul>
+                        </details>
                     </div>
                 </div>
             `;

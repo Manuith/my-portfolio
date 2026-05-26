@@ -1,5 +1,5 @@
 ﻿        :root {
-            --pcb-green: #00B85F;
+            --pcb-green: #51f1b9;
         }
         /* DESIGN: Nokia Design Archive â€” Dark Terminal / Digital Cartography */
         * {
@@ -129,8 +129,8 @@
         }
 
         .top-link:hover {
-            border-color: rgba(0, 184, 95, 0.55);
-            background: rgba(0, 184, 95, 0.10);
+            border-color: rgba(81, 241, 185, 0.55);
+            background: rgba(81, 241, 185, 0.10);
             color: #ffffff;
             transform: translateY(-1px);
         }
@@ -245,7 +245,7 @@
 
         .project-card:hover {
             background: rgba(255,255,255,0.055);
-            border-color: rgba(0, 184, 95, 0.45);
+            border-color: rgba(81, 241, 185, 0.45);
         }
 
         .project-card-title {
@@ -296,14 +296,14 @@
         }
 
         .project-tab:hover {
-            border-color: rgba(0, 184, 95, 0.45);
+            border-color: rgba(81, 241, 185, 0.45);
             color: rgba(255,255,255,0.88);
         }
 
         .project-tab.active {
             border-color: var(--pcb-green);
             color: #ffffff;
-            background: rgba(0, 184, 95, 0.16);
+            background: rgba(81, 241, 185, 0.16);
         }
 
         .project-detail {
@@ -318,9 +318,9 @@
 
         .project-image-shell {
             margin: 0 0 16px;
-            border: 1px solid rgba(0, 184, 95, 0.34);
+            border: 1px solid rgba(81, 241, 185, 0.34);
             background:
-                linear-gradient(135deg, rgba(0, 184, 95, 0.12), rgba(0, 184, 95, 0.03)),
+                linear-gradient(135deg, rgba(81, 241, 185, 0.12), rgba(81, 241, 185, 0.03)),
                 rgba(255,255,255,0.02);
             min-height: 210px;
             height: clamp(210px, 28vh, 280px);
@@ -379,7 +379,8 @@
             z-index: 1;
             width: 100%;
             height: 100%;
-            object-fit: contain;
+            object-fit: cover;
+            object-position: center;
             display: block;
         }
 
@@ -390,7 +391,7 @@
             width: 42px;
             height: 42px;
             background: rgba(10,10,10,0.8);
-            border: 1px solid rgba(0, 184, 95, 0.32);
+            border: 1px solid rgba(81, 241, 185, 0.32);
             cursor: pointer;
             z-index: 2;
             display: flex;
@@ -400,8 +401,8 @@
         }
 
         .project-image-arrow:hover {
-            background: rgba(0, 184, 95, 0.16);
-            border-color: rgba(0, 184, 95, 0.55);
+            background: rgba(81, 241, 185, 0.16);
+            border-color: rgba(81, 241, 185, 0.55);
             transform: translateY(-50%) scale(1.03);
         }
 
@@ -487,6 +488,25 @@
             line-height: 1.7;
         }
 
+        .project-more {
+            margin-top: 10px;
+        }
+
+        .project-more-toggle {
+            color: var(--pcb-green);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            cursor: pointer;
+            list-style: none;
+            user-select: none;
+        }
+
+        .project-more-toggle::-webkit-details-marker {
+            display: none;
+        }
+
         .skills-showcase {
             display: flex;
             flex-direction: column;
@@ -542,8 +562,8 @@
         .skills-icon-slot {
             width: 44px;
             height: 44px;
-            border: 1px solid rgba(0, 184, 95, 0.34);
-            background: rgba(0, 184, 95, 0.08);
+            border: 1px solid rgba(81, 241, 185, 0.34);
+            background: rgba(81, 241, 185, 0.08);
             color: var(--pcb-green);
             display: flex;
             align-items: center;
@@ -565,8 +585,8 @@
             display: inline-flex;
             align-items: center;
             gap: 7px;
-            border: 1px solid rgba(0, 184, 95, 0.45);
-            background: rgba(0, 184, 95, 0.08);
+            border: 1px solid rgba(81, 241, 185, 0.45);
+            background: rgba(81, 241, 185, 0.08);
             color: rgba(255,255,255,0.88);
             font-family: 'JetBrains Mono', monospace;
             font-size: 11px;
@@ -578,8 +598,8 @@
         .skills-chip-icon {
             width: 18px;
             height: 18px;
-            border: 1px solid rgba(0, 184, 95, 0.42);
-            background: rgba(0, 184, 95, 0.14);
+            border: 1px solid rgba(81, 241, 185, 0.42);
+            background: rgba(81, 241, 185, 0.14);
             color: var(--pcb-green);
             display: inline-flex;
             align-items: center;
@@ -605,7 +625,7 @@
             bottom: 4px;
             left: 6px;
             width: 1px;
-            background: linear-gradient(180deg, rgba(0, 184, 95, 0.55), rgba(255,255,255,0.12));
+            background: linear-gradient(180deg, rgba(81, 241, 185, 0.55), rgba(255,255,255,0.12));
         }
 
         .education-item {
@@ -620,10 +640,10 @@
             width: 13px;
             height: 13px;
             margin-top: 6px;
-            border: 1px solid rgba(0, 184, 95, 0.8);
+            border: 1px solid rgba(81, 241, 185, 0.8);
             background: #0e0e0e;
             border-radius: 999px;
-            box-shadow: 0 0 0 4px rgba(0, 184, 95, 0.08);
+            box-shadow: 0 0 0 4px rgba(81, 241, 185, 0.08);
             flex: 0 0 auto;
         }
 
@@ -697,7 +717,7 @@
             .zoom-controls {
                 top: auto;
                 left: 12px;
-                bottom: 138px;
+                bottom: 64px;
             }
 
             .top-links {
@@ -729,31 +749,7 @@
             }
 
             .missions-dock {
-                left: 12px;
-                right: 12px;
-                bottom: 72px;
-                width: auto;
-                padding: 14px 14px 12px;
-            }
-
-            .missions-title {
-                font-size: 11px;
-            }
-
-            .mission-link {
-                font-size: 11px;
-                padding: 11px 12px;
-            }
-
-            .mission-name {
-                max-width: 58%;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-            }
-
-            .mission-status {
-                font-size: 10px;
+                display: none;
             }
 
             .side-panel {
@@ -823,8 +819,8 @@
         }
 
         .contact-input:focus {
-            border-color: rgba(0, 184, 95, 0.6);
-            background: rgba(0, 184, 95, 0.06);
+            border-color: rgba(81, 241, 185, 0.6);
+            background: rgba(81, 241, 185, 0.06);
         }
 
         .contact-input::placeholder {
@@ -843,8 +839,8 @@
         }
 
         .contact-btn:hover {
-            background: rgba(0, 184, 95, 0.16);
-            border-color: rgba(0, 184, 95, 0.45);
+            background: rgba(81, 241, 185, 0.16);
+            border-color: rgba(81, 241, 185, 0.45);
         }
 
         .panel-backdrop {
@@ -999,8 +995,8 @@
         }
 
         .mission-link:hover {
-            border-color: rgba(0, 184, 95, 0.45);
-            background: rgba(0, 184, 95, 0.08);
+            border-color: rgba(81, 241, 185, 0.45);
+            background: rgba(81, 241, 185, 0.08);
             color: #ffffff;
         }
 
@@ -1010,11 +1006,11 @@
         }
 
         .mission-status {
-            color: #27ff8e;
+            color: #51f1b9;
             text-transform: uppercase;
             letter-spacing: 0.08em;
             font-size: 11px;
-            text-shadow: 0 0 8px rgba(39, 255, 142, 0.42);
+            text-shadow: 0 0 8px rgba(81, 241, 185, 0.42);
         }
 
         @keyframes fadeInUp {
