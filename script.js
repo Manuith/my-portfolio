@@ -1,4 +1,4 @@
-﻿        // ============================================================================
+        // ============================================================================
         // Portfolio Mind Map - Standalone Version (No Build Required)
         // ============================================================================
 
@@ -101,9 +101,10 @@
         let hoveredNode = null;
         let activeNode = null;
         let activeProjectIndex = 0;
+        let activeProjectVariantIndex = 0;
         let activeProjectImageIndex = 0;
-        let pan = { x: 0, y: 0 };
-        let zoom = 1;
+        let zoom = 2;
+        let pan = { x: -950, y: -530 };
         let drag = { active: false, sx: 0, sy: 0, px: 0, py: 0 };
         let dashOffset = 0;
         let touchState = {
@@ -604,28 +605,61 @@
         const PROJECTS_DATA = [
             {
                 name: 'Mini Wind Energy Harvester',
-                role: 'Prototype V1',
+                role: 'Prototype Series',
                 imageLabel: 'Generator Monitoring System',
                 status: 'Progress',
-                images: [
+                stack: ['Arduino', 'Python', 'Excel', 'Energy Systems'],
+                variants: [
                     {
-                        label: 'TinkerCAD Prototype Layout',
-                        note: 'Prototype wiring layout for the brushed DC generator monitoring system.',
-                        src: 'assets/images/projects/tinkercad-v1.png'
+                        name: 'Prototype V1',
+                        role: 'Prototype V1',
+                        imageLabel: 'Generator Monitoring System',
+                        images: [
+                            {
+                                label: 'TinkerCAD Prototype Layout',
+                                note: 'Prototype wiring layout for the brushed DC generator monitoring system.',
+                                src: 'assets/images/projects/tinkercad-v1.png',
+                                fitClass: 'project-image-media--schematic'
+                            },
+                            {
+                                label: 'Arduino Prototype Build',
+                                note: 'Physical Arduino and breadboard test setup used during early load-testing experiments.',
+                                src: 'assets/images/projects/arduino-v1.jpg',
+                                fitClass: 'project-image-media--photo'
+                            }
+                        ],
+                        summary: 'Built a small-scale wind energy harvesting prototype using a brushed DC motor as a generator and an Arduino-based monitoring system. This version focused on learning how small generator systems behave under different electrical loads through safe measurement, resistive testing, and hands-on iteration before moving toward larger brushless systems.',
+                        highlights: [
+                            'Used a brushed DC motor as a small generator to study output behavior under changing resistive loads.',
+                            'Implemented a voltage divider and Arduino ADC monitoring to safely capture voltage, current, and power-related data.',
+                            'Used LEDs as quick visual indicators during testing to observe load-driven changes in generator behavior.',
+                            'Built this version as a hands-on learning step before progressing toward larger brushless generator systems.'
+                        ]
                     },
                     {
-                        label: 'Arduino Prototype Build',
-                        note: 'Physical Arduino and breadboard test setup used during early load-testing experiments.',
-                        src: 'assets/images/projects/arduino-v1.jpg'
+                        name: 'Prototype V2',
+                        role: 'Prototype V2',
+                        imageLabel: 'Upgraded System',
+                        images: [
+                            {
+                                label: 'Prototype V2 Build',
+                                note: 'Add your upgraded physical prototype photo here.',
+                                fitClass: 'project-image-media--photo'
+                            },
+                            {
+                                label: 'Prototype V2 Schematic',
+                                note: 'Add your revised schematic, CAD layout, or instrumentation setup here.',
+                                fitClass: 'project-image-media--schematic'
+                            }
+                        ],
+                        summary: 'Use this V2 tab to describe the next iteration of the harvester, what changed from V1, and how the upgraded design improved testing, measurement, or power capture.',
+                        highlights: [
+                            'List the major hardware or circuit changes introduced in Prototype V2.',
+                            'Explain the updated measurement or data acquisition process used in this version.',
+                            'Compare Prototype V2 performance, stability, or output against Prototype V1.',
+                            'Summarize what this version taught you and what the next iteration should improve.'
+                        ]
                     }
-                ],
-                summary: 'Built a small-scale wind energy harvesting prototype using a brushed DC motor as a generator and an Arduino-based monitoring system. This version focused on learning how small generator systems behave under different electrical loads through safe measurement, resistive testing, and hands-on iteration before moving toward larger brushless systems.',
-                stack: ['Arduino', 'Python', 'Excel', 'Energy Systems'],
-                highlights: [
-                    'Used a brushed DC motor as a small generator to study output behavior under changing resistive loads.',
-                    'Implemented a voltage divider and Arduino ADC monitoring to safely capture voltage, current, and power-related data.',
-                    'Used LEDs as quick visual indicators during testing to observe load-driven changes in generator behavior.',
-                    'Built this version as a hands-on learning step before progressing toward larger brushless generator systems.'
                 ]
             },
             {
@@ -634,9 +668,9 @@
                 imageLabel: 'Gameplay Scene',
                 status: 'Completed',
                 images: [
-                    { label: 'Gameplay Scene', note: 'Add your main Unity gameplay shot or combat scene here.' },
-                    { label: 'Procedural Motion', note: 'Use this slot for the inverse kinematics arm simulation or animation logic.' },
-                    { label: 'Combat System', note: 'Use this slot for collision-based combat, hit detection, or gameplay interactions.' }
+                    { label: 'Gameplay Scene', note: 'Add your main Unity gameplay shot or combat scene here.', fitClass: 'project-image-media--photo' },
+                    { label: 'Procedural Motion', note: 'Use this slot for the inverse kinematics arm simulation or animation logic.', fitClass: 'project-image-media--schematic' },
+                    { label: 'Combat System', note: 'Use this slot for collision-based combat, hit detection, or gameplay interactions.', fitClass: 'project-image-media--schematic' }
                 ],
                 summary: 'Collaborated on a Unity game prototype, contributing gameplay systems, procedural movement logic, and real-time combat behavior.',
                 stack: ['Unity', 'C#', 'Animation', 'Gameplay'],
@@ -652,9 +686,9 @@
                 imageLabel: 'Platform Overview',
                 status: 'Progress',
                 images: [
-                    { label: 'Platform Overview', note: 'Add the main app view, dashboard, or filtered feed layout here.' },
-                    { label: 'Filtering System', note: 'Use this slot for article scoring, ranking logic, or AI-assisted filtering.' },
-                    { label: 'Automation View', note: 'Use this slot for scraping, storage, or personalized delivery workflow visuals.' }
+                    { label: 'Platform Overview', note: 'Add the main app view, dashboard, or filtered feed layout here.', fitClass: 'project-image-media--photo' },
+                    { label: 'Filtering System', note: 'Use this slot for article scoring, ranking logic, or AI-assisted filtering.', fitClass: 'project-image-media--schematic' },
+                    { label: 'Automation View', note: 'Use this slot for scraping, storage, or personalized delivery workflow visuals.', fitClass: 'project-image-media--photo' }
                 ],
                 summary: 'Building a personalized news intelligence platform that ingests articles, filters higher-signal information, and automates delivery.',
                 stack: ['Python', 'APIs', 'Web Scraping', 'AI'],
@@ -670,9 +704,9 @@
                 imageLabel: 'LTspice Analysis',
                 status: 'Completed',
                 images: [
-                    { label: 'LTspice Analysis', note: 'Add a circuit simulation screenshot with transient or AC response plots.' },
-                    { label: 'Theory vs Simulation', note: 'Use this slot for calculations compared against LTspice results.' },
-                    { label: 'Lab Measurements', note: 'Use this slot for breadboard builds, measured behavior, or validation results.' }
+                    { label: 'LTspice Analysis', note: 'Add a circuit simulation screenshot with transient or AC response plots.', fitClass: 'project-image-media--schematic' },
+                    { label: 'Theory vs Simulation', note: 'Use this slot for calculations compared against LTspice results.', fitClass: 'project-image-media--schematic' },
+                    { label: 'Lab Measurements', note: 'Use this slot for breadboard builds, measured behavior, or validation results.', fitClass: 'project-image-media--photo' }
                 ],
                 summary: 'Simulated and analyzed circuits involving resistors, capacitors, inductors, op-amps, AC sources, and transient behavior using LTspice and core circuit analysis methods.',
                 stack: ['LTspice', 'Circuit Analysis', 'AC Circuits', 'Op-Amps'],
@@ -689,7 +723,7 @@
                 title: 'ME',
                 subtitle: 'Intro & How To Start',
                 content: `<p class="panel-body" style="margin-bottom: 20px;">Hi!
-                            I'm an Electrical Engineering student with a background in computer science. I’ve worked on a Unity/C# project, and I’m currently building projects with Arduino and electronic circuits. I’m interested in power/energy systems and automation. Recently, I’ve also become interested in embedded systems and electronics. I enjoy building things that combine hardware and software, and I like understanding how real systems work through hands-on projects. 
+                            I'm an Electrical Engineering student with a background in computer science. I?ve worked on a Unity/C# project, and I?m currently building projects with Arduino and electronic circuits. I?m interested in power/energy systems and automation. Recently, I?ve also become interested in embedded systems and electronics. I enjoy building things that combine hardware and software, and I like understanding how real systems work through hands-on projects. 
 
                             You could say I am something of a tinkerer myself.
 
@@ -723,7 +757,7 @@
                             <div class="education-dot"></div>
                             <div class="education-content">
                                 <div class="education-period">2023 - 2025</div>
-                                <div class="education-school">Collège Lionel-Groulx</div>
+                                <div class="education-school">Coll?ge Lionel-Groulx</div>
                                 <div class="education-degree">DEC in Computer Science and Mathematics</div>
                             </div>
                         </div>
@@ -856,22 +890,37 @@
             }
         };
 
+        function getActiveProjectView(project = PROJECTS_DATA[activeProjectIndex] ?? PROJECTS_DATA[0]) {
+            if (project?.variants?.length) {
+                return project.variants[activeProjectVariantIndex] ?? project.variants[0];
+            }
+            return project;
+        }
+
         function renderProjectsContent() {
             const project = PROJECTS_DATA[activeProjectIndex] ?? PROJECTS_DATA[0];
-            const images = project.images?.length ? project.images : [{ label: project.imageLabel, note: 'Reserved space for your project image, mockup, or screenshot.' }];
+            const projectView = getActiveProjectView(project);
+            const images = projectView.images?.length ? projectView.images : [{ label: projectView.imageLabel || project.imageLabel, note: 'Reserved space for your project image, mockup, or screenshot.' }];
             const normalizedImageIndex = ((activeProjectImageIndex % images.length) + images.length) % images.length;
             const tabs = PROJECTS_DATA.map((item, index) => `
                 <button class="project-tab ${index === activeProjectIndex ? 'active' : ''}" onclick="setProjectTab(${index})">
                     ${item.name}
                 </button>
             `).join('');
-            const tags = project.stack.map(tag => `
+            const variantTabs = project.variants?.length
+                ? `<div class="project-tabs animate-fade-in-up" style="animation-delay: 18ms; margin-top: 12px; margin-bottom: 14px;">${project.variants.map((item, index) => `
+                    <button class="project-tab ${index === activeProjectVariantIndex ? 'active' : ''}" onclick="setProjectVariant(${index})">
+                        ${item.name}
+                    </button>
+                `).join('')}</div>`
+                : '';
+            const tags = (projectView.stack || project.stack || []).map(tag => `
                 <span class="project-tag" style="border-color: ${PCB_GREEN}; color: ${PCB_GREEN};">${tag}</span>
             `).join('');
-            const highlights = project.highlights.map(item => `<li>${item}</li>`).join('');
+            const highlights = (projectView.highlights || project.highlights || []).map(item => `<li>${item}</li>`).join('');
             const slides = images.map((item) => {
                 const slideMarkup = item.src
-                    ? `<img class="project-image-media" src="${item.src}" alt="${item.label}">`
+                    ? `<img class="project-image-media ${item.fitClass || ""}" src="${item.src}" alt="${item.label}">`
                     : `
                         <div class="project-image-placeholder">
                             <div class="project-image-label">${item.label}</div>
@@ -888,6 +937,7 @@
 
             return `
                 <div class="project-tabs animate-fade-in-up">${tabs}</div>
+                ${variantTabs}
                 <div class="project-detail animate-fade-in-up" style="animation-delay: 40ms;">
                     <div class="project-image-shell">
                         <button class="project-image-arrow left" onclick="cycleProjectImage(-1)" aria-label="Previous project image">
@@ -905,8 +955,8 @@
                     </div>
                     <div class="project-copy">
                         <div class="project-card-title">${project.name}</div>
-                        <div class="project-detail-meta">${project.role}</div>
-                        <div class="project-card-desc" style="font-size: 11px; color: rgba(255,255,255,0.58);">${project.summary}</div>
+                        <div class="project-detail-meta">${projectView.role || project.role}</div>
+                        <div class="project-card-desc" style="font-size: 11px; color: rgba(255,255,255,0.58);">${projectView.summary || project.summary}</div>
                         <div>${tags}</div>
                         <details class="project-more">
                             <summary class="project-more-toggle">See more</summary>
@@ -919,6 +969,7 @@
 
         function setProjectTab(index) {
             activeProjectIndex = index;
+            activeProjectVariantIndex = 0;
             activeProjectImageIndex = 0;
             if (activeNode?.section === 'projects') {
                 updatePanel();
@@ -926,9 +977,18 @@
             }
         }
 
+        function setProjectVariant(index) {
+            activeProjectVariantIndex = index;
+            activeProjectImageIndex = 0;
+            if (activeNode?.section === 'projects') {
+                updatePanel();
+                updateStatusDock();
+            }
+        }
         function cycleProjectImage(direction) {
             const project = PROJECTS_DATA[activeProjectIndex] ?? PROJECTS_DATA[0];
-            const count = project.images?.length || 1;
+            const projectView = getActiveProjectView(project);
+            const count = projectView.images?.length || 1;
             activeProjectImageIndex = (activeProjectImageIndex + direction + count) % count;
             if (activeNode?.section === 'projects') {
                 updateProjectImageDisplay();
@@ -937,7 +997,8 @@
 
         function updateProjectImageDisplay() {
             const project = PROJECTS_DATA[activeProjectIndex] ?? PROJECTS_DATA[0];
-            const count = project.images?.length || 1;
+            const projectView = getActiveProjectView(project);
+            const count = projectView.images?.length || 1;
             const normalizedImageIndex = ((activeProjectImageIndex % count) + count) % count;
             const track = document.querySelector('.project-image-track');
             const counter = document.querySelector('.project-image-counter');
@@ -960,7 +1021,7 @@
             if (activeNode?.section === 'projects' && PROJECTS_DATA[activeProjectIndex]) {
                 const project = PROJECTS_DATA[activeProjectIndex];
                 title.textContent = project.name;
-                subtitle.textContent = `Current Mission · ${project.status}`;
+                subtitle.textContent = `Current Mission ? ${project.status}`;
                 detail.textContent = project.role;
             } else if (activeNode?.label) {
                 title.textContent = activeNode.label;
@@ -969,7 +1030,7 @@
             } else {
                 title.textContent = 'Portfolio Map';
                 subtitle.textContent = 'Instructions';
-                detail.textContent = 'Scroll or pinch to zoom · drag to pan · tap node to explore';
+                detail.textContent = 'Scroll or pinch to zoom ? drag to pan ? tap node to explore';
             }
         }
 
@@ -977,6 +1038,7 @@
             const projectsNode = NODES.find(node => node.id === 'projects');
             if (!projectsNode) return;
             activeProjectIndex = index;
+            activeProjectVariantIndex = 0;
             activeProjectImageIndex = 0;
             activeNode = projectsNode;
             updatePanel();
@@ -988,6 +1050,7 @@
             if (!node) return;
             if (node.section === 'projects') {
                 activeProjectIndex = 0;
+                activeProjectVariantIndex = 0;
                 activeProjectImageIndex = 0;
             }
             activeNode = node;
@@ -1152,7 +1215,7 @@
                 <div class="bottom-hint">
                     <div class="bottom-hint-title">Portfolio Map</div>
                     <div class="bottom-hint-subtitle">Instructions</div>
-                    <div class="bottom-hint-detail">Scroll or pinch to zoom · drag to pan · tap node to explore</div>
+                    <div class="bottom-hint-detail">Scroll or pinch to zoom ? drag to pan ? tap node to explore</div>
                 </div>
 
                 <div class="missions-dock">
@@ -1188,3 +1251,58 @@
         window.closePanel = closePanel;
         window.fireZoom = fireZoom;
         window.openNodeById = openNodeById;
+
+function syncProjectImageShell() {
+    const shell = document.querySelector('.project-image-shell');
+    if (!shell) return;
+
+    const project = PROJECTS_DATA[activeProjectIndex] ?? PROJECTS_DATA[0];
+    const projectView = getActiveProjectView(project);
+    const count = projectView.images?.length || 1;
+    const normalizedImageIndex = ((activeProjectImageIndex % count) + count) % count;
+    const slides = document.querySelectorAll('.project-image-slide');
+    const activeSlide = slides[normalizedImageIndex];
+    const img = activeSlide?.querySelector('.project-image-media');
+
+    if (!img || !img.naturalWidth || !img.naturalHeight) {
+        shell.style.removeProperty('--project-shell-width');
+        shell.style.removeProperty('--project-shell-height');
+        return;
+    }
+
+    const detail = shell.closest('.project-detail');
+    const mobile = window.innerWidth <= 680;
+    const maxShellWidth = Math.min(detail?.clientWidth || shell.parentElement?.clientWidth || window.innerWidth, mobile ? window.innerWidth - 36 : 520);
+    const maxShellHeight = mobile ? 210 : Math.min(Math.max(window.innerHeight * 0.30, 220), 320);
+    const chromeWidth = mobile ? 34 : 38;
+    const chromeHeight = 8;
+    const maxImageWidth = Math.max(120, maxShellWidth - chromeWidth);
+    const maxImageHeight = Math.max(120, maxShellHeight - chromeHeight);
+    const scale = Math.min(maxImageWidth / img.naturalWidth, maxImageHeight / img.naturalHeight, 1);
+    const fittedWidth = Math.round(img.naturalWidth * scale);
+    const fittedHeight = Math.round(img.naturalHeight * scale);
+
+    shell.style.setProperty('--project-shell-width', `${Math.min(maxShellWidth, fittedWidth + chromeWidth)}px`);
+    shell.style.setProperty('--project-shell-height', `${Math.min(maxShellHeight, fittedHeight + chromeHeight)}px`);
+}
+
+const originalUpdatePanel = updatePanel;
+updatePanel = function () {
+    originalUpdatePanel();
+    requestAnimationFrame(syncProjectImageShell);
+};
+
+const originalUpdateProjectImageDisplay = updateProjectImageDisplay;
+updateProjectImageDisplay = function () {
+    originalUpdateProjectImageDisplay();
+    requestAnimationFrame(syncProjectImageShell);
+};
+
+window.addEventListener('resize', syncProjectImageShell);
+document.addEventListener('load', (event) => {
+    if (event.target?.matches?.('.project-image-media')) {
+        syncProjectImageShell();
+    }
+}, true);
+
+window.syncProjectImageShell = syncProjectImageShell;

@@ -1,7 +1,7 @@
-﻿        :root {
+        :root {
             --pcb-green: #51f1b9;
         }
-        /* DESIGN: Nokia Design Archive â€” Dark Terminal / Digital Cartography */
+        /* DESIGN: Nokia Design Archive — Dark Terminal / Digital Cartography */
         * {
             margin: 0;
             padding: 0;
@@ -72,8 +72,8 @@
         }
 
         .zoom-btn {
-            width: 30px;
-            height: 30px;
+            width: 36px;
+            height: 36px;
             background: rgba(255,255,255,0.04);
             border: 1px solid rgba(255,255,255,0.10);
             color: rgba(255,255,255,0.5);
@@ -317,13 +317,13 @@
         }
 
         .project-image-shell {
-            margin: 0 0 16px;
+            margin: 0 auto 16px;
             border: 1px solid rgba(81, 241, 185, 0.34);
             background:
-                linear-gradient(135deg, rgba(81, 241, 185, 0.12), rgba(81, 241, 185, 0.03)),
+                linear-gradient(135deg, rgba(81, 241, 185, 0.05), rgba(81, 241, 185, 0.015)),
                 rgba(255,255,255,0.02);
-            min-height: 210px;
-            height: clamp(210px, 28vh, 280px);
+            width: min(100%, var(--project-shell-width, 520px));
+            height: var(--project-shell-height, clamp(220px, 30vh, 320px));
             display: flex;
             align-items: center;
             justify-content: center;
@@ -356,13 +356,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 18px 56px;
+            padding: 0 12px;
         }
 
         .project-image-shell::before {
             content: '';
             position: absolute;
-            inset: 12px;
+            inset: 3px;
             border: 1px dashed rgba(255,255,255,0.12);
             pointer-events: none;
         }
@@ -377,19 +377,32 @@
         .project-image-media {
             position: relative;
             z-index: 1;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+            width: auto;
+            height: auto;
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
             object-position: center;
             display: block;
+        }
+
+
+        .project-image-media--schematic {
+            transform: scaleX(1.32) scaleY(1.22);
+            transform-origin: center;
+        }
+
+        .project-image-media--photo {
+            transform: scale(1.08);
+            transform-origin: center;
         }
 
         .project-image-arrow {
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
-            width: 42px;
-            height: 42px;
+            width: 36px;
+            height: 36px;
             background: rgba(10,10,10,0.8);
             border: 1px solid rgba(81, 241, 185, 0.32);
             cursor: pointer;
@@ -407,11 +420,11 @@
         }
 
         .project-image-arrow.left {
-            left: 14px;
+            left: 6px;
         }
 
         .project-image-arrow.right {
-            right: 14px;
+            right: 6px;
         }
 
         .project-image-arrow-icon {
@@ -455,12 +468,12 @@
 
         .project-image-counter {
             position: absolute;
-            right: 14px;
+            right: 6px;
             bottom: 12px;
             z-index: 2;
             font-family: 'JetBrains Mono', monospace;
             font-size: 11px;
-            color: rgba(255,255,255,0.55);
+            color: #51f1b9;
             letter-spacing: 0.08em;
             text-transform: uppercase;
         }
@@ -690,13 +703,13 @@
         @media (max-width: 860px) {
             .top-links {
                 top: 14px;
-                right: 14px;
+                right: 6px;
                 gap: 6px;
                 max-width: calc(100vw - 28px);
             }
 
             .top-link {
-                min-height: 34px;
+                min-height: 28px;
                 padding: 8px 10px;
                 font-size: 10px;
             }
@@ -782,16 +795,26 @@
 
             .project-image-shell {
                 min-height: 180px;
-                height: 220px;
+                height: 210px;
             }
 
             .project-image-slide {
-                padding: 16px 46px;
+                padding: 0 12px;
             }
 
-            .project-image-arrow {
-                width: 38px;
-                height: 38px;
+        .project-image-media--schematic {
+            transform: scaleX(1.32) scaleY(1.22);
+            transform-origin: center;
+        }
+
+        .project-image-media--photo {
+            transform: scale(1.08);
+            transform-origin: center;
+        }
+
+        .project-image-arrow {
+                width: 28px;
+                height: 28px;
             }
 
             .education-content {
@@ -1006,7 +1029,7 @@
         }
 
         .mission-status {
-            color: #51f1b9;
+            color: var(--pcb-green);
             text-transform: uppercase;
             letter-spacing: 0.08em;
             font-size: 11px;
