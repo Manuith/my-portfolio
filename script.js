@@ -94,6 +94,11 @@
         const PARTICLE_COUNT = 340;
         const LERP = 0.09;
         const TOUCH_TAP_SLOP = 18;
+        const CAMERA_DESIGN_WIDTH = 1920;
+        const CAMERA_DESIGN_HEIGHT = 1080;
+        const ROOT_SCREEN_TARGET = { x: 0.50, y: 0.50 };
+        const MIN_INITIAL_ZOOM = 1.58;
+        const MAX_INITIAL_ZOOM = 2.05;
 
         let canvas, ctx;
         let particles = [];
@@ -103,8 +108,10 @@
         let activeProjectIndex = 0;
         let activeProjectVariantIndex = 0;
         let activeProjectImageIndex = 0;
-        let zoom = 2;
-        let pan = { x: -950, y: -530 };
+        let zoom = 1;
+        let pan = { x: 0, y: 0 };
+        let canvasView = { width: 0, height: 0, dpr: 1 };
+        let cameraWasAdjusted = false;
         let drag = { active: false, sx: 0, sy: 0, px: 0, py: 0 };
         let dashOffset = 0;
         let touchState = {
@@ -123,6 +130,39 @@
             return a + (b - a) * t;
         }
 
+        function clamp(value, min, max) {
+            return Math.max(min, Math.min(max, value));
+        }
+
+        function getResponsiveInitialZoom(width, height) {
+            const viewportScale = Math.min(width / CAMERA_DESIGN_WIDTH, height / CAMERA_DESIGN_HEIGHT);
+            return clamp(2.12 * viewportScale, MIN_INITIAL_ZOOM, MAX_INITIAL_ZOOM);
+        }
+
+        function resizeCanvas() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            const dpr = Math.max(1, window.devicePixelRatio || 1);
+
+            canvasView = { width, height, dpr };
+            canvas.style.width = `${width}px`;
+            canvas.style.height = `${height}px`;
+            canvas.width = Math.round(width * dpr);
+            canvas.height = Math.round(height * dpr);
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+
+        function setInitialCamera() {
+            const rootNode = NODES.find(node => node.id === 'root') ?? NODES[0];
+            if (!rootNode || !canvas) return;
+
+            zoom = getResponsiveInitialZoom(canvasView.width, canvasView.height);
+            pan = {
+                x: canvasView.width * ROOT_SCREEN_TARGET.x - rootNode.x * canvasView.width * zoom,
+                y: canvasView.height * ROOT_SCREEN_TARGET.y - rootNode.y * canvasView.height * zoom,
+            };
+        }
+
         function hexToRgb(hex) {
             const r = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
             return r ? { r: parseInt(r[1], 16), g: parseInt(r[2], 16), b: parseInt(r[3], 16) } : null;
@@ -130,8 +170,8 @@
 
         function initParticles() {
             particles = Array.from({ length: PARTICLE_COUNT }, () => ({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
+                x: Math.random() * canvasView.width,
+                y: Math.random() * canvasView.height,
                 vx: (Math.random() - 0.5) * 0.14,
                 vy: (Math.random() - 0.5) * 0.14,
                 radius: Math.random() * 1.5 + 0.3,
@@ -145,8 +185,8 @@
 
         function nodePos(node) {
             return {
-                x: node.x * canvas.width * zoom + pan.x,
-                y: node.y * canvas.height * zoom + pan.y,
+                x: node.x * canvasView.width * zoom + pan.x,
+                y: node.y * canvasView.height * zoom + pan.y,
             };
         }
 
@@ -287,16 +327,16 @@
 
         function draw() {
             ctx.fillStyle = '#0e0e0e';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillRect(0, 0, canvasView.width, canvasView.height);
 
             // Particles
             for (const p of particles) {
                 p.x += p.vx;
                 p.y += p.vy;
-                if (p.x < 0) p.x = canvas.width;
-                if (p.x > canvas.width) p.x = 0;
-                if (p.y < 0) p.y = canvas.height;
-                if (p.y > canvas.height) p.y = 0;
+                if (p.x < 0) p.x = canvasView.width;
+                if (p.x > canvasView.width) p.x = 0;
+                if (p.y < 0) p.y = canvasView.height;
+                if (p.y > canvasView.height) p.y = 0;
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
                 ctx.fillStyle = `rgba(155,155,155,${p.opacity})`;
@@ -430,6 +470,7 @@
             if (drag.active) {
                 pan.x = drag.px + (sx - drag.sx);
                 pan.y = drag.py + (sy - drag.sy);
+                cameraWasAdjusted = true;
                 return;
             }
 
@@ -484,6 +525,7 @@
             pan.x = e.clientX - ratio * (e.clientX - pan.x);
             pan.y = e.clientY - ratio * (e.clientY - pan.y);
             zoom = nz;
+            cameraWasAdjusted = true;
         }
 
         function getTouchDistance(a, b) {
@@ -538,6 +580,7 @@
                 const touch = e.touches[0];
                 pan.x = drag.px + (touch.clientX - drag.sx);
                 pan.y = drag.py + (touch.clientY - drag.sy);
+                cameraWasAdjusted = true;
                 touchState.lastPoint = { x: touch.clientX, y: touch.clientY };
 
                 if (Math.hypot(touch.clientX - touchState.tapStart.x, touch.clientY - touchState.tapStart.y) > TOUCH_TAP_SLOP) {
@@ -557,6 +600,7 @@
                 pan.x = center.x - ratio * (touchState.startCenter.x - touchState.startPan.x);
                 pan.y = center.y - ratio * (touchState.startCenter.y - touchState.startPan.y);
                 zoom = nextZoom;
+                cameraWasAdjusted = true;
                 touchState.tapMoved = true;
             }
         }
@@ -663,14 +707,29 @@
                 ]
             },
             {
-                name: 'Dream Game',
+                name: 'Dream Game RPG',
                 role: 'Team Project',
                 imageLabel: 'Gameplay Scene',
                 status: 'Completed',
                 images: [
-                    { label: 'Gameplay Scene', note: 'Add your main Unity gameplay shot or combat scene here.', fitClass: 'project-image-media--photo' },
-                    { label: 'Procedural Motion', note: 'Use this slot for the inverse kinematics arm simulation or animation logic.', fitClass: 'project-image-media--schematic' },
-                    { label: 'Combat System', note: 'Use this slot for collision-based combat, hit detection, or gameplay interactions.', fitClass: 'project-image-media--schematic' }
+                    {
+                        label: 'Gameplay Scene',
+                        note: 'Main Unity gameplay and character playground view.',
+                        src: 'assets/images/projects/character_playground.png',
+                        fitClass: 'project-image-media--photo'
+                    },
+                    {
+                        label: 'Procedural Motion',
+                        note: 'Inverse kinematics arm simulation and procedural animation logic.',
+                        src: 'assets/images/projects/FABRIK.png',
+                        fitClass: 'project-image-media--schematic'
+                    },
+                    {
+                        label: 'Combat System',
+                        note: 'State machine and gameplay interaction logic.',
+                        src: 'assets/images/projects/state_machine.png',
+                        fitClass: 'project-image-media--schematic'
+                    }
                 ],
                 summary: 'Collaborated on a Unity game prototype, contributing gameplay systems, procedural movement logic, and real-time combat behavior.',
                 stack: ['Unity', 'C#', 'Animation', 'Gameplay'],
@@ -718,19 +777,93 @@
             }
         ];
 
+        const DEVICON_SKILL_ICONS = {
+            cpp: 'devicon-cplusplus-plain colored',
+            csharp: 'devicon-csharp-plain colored',
+            javascript: 'devicon-javascript-plain colored',
+            git: 'devicon-git-plain colored',
+            node: 'devicon-nodejs-plain colored',
+            react: 'devicon-react-original colored',
+            unity: 'devicon-unity-plain',
+            arduino: 'devicon-arduino-plain colored',
+        };
+
+        function skillGlyph(type) {
+            const glyphs = {
+                python: `<svg viewBox="0 0 24 24" aria-hidden="true"><path class="python-blue" d="M12 2c-4 0-4.8 1.7-4.8 1.7v3.8H12v1.1H5.3S2 8.2 2 13.4c0 5.1 2.9 4.9 2.9 4.9h1.7v-2.4s-.1-2.9 2.8-2.9h4.8s2.7 0 2.7-2.6V4.7S17.4 2 12 2Z"/><path class="python-yellow" d="M12 22c4 0 4.8-1.7 4.8-1.7v-3.8H12v-1.1h6.7s3.3.4 3.3-4.8c0-5.1-2.9-4.9-2.9-4.9h-1.7v2.4s.1 2.9-2.8 2.9H9.8s-2.7 0-2.7 2.6v5.7S6.6 22 12 22Z"/><circle cx="9" cy="5" r="1"/><circle cx="15" cy="19" r="1"/></svg>`,
+                excel: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5 12 4v16L4 18.5v-13Z"/><path d="M12 6h8v12h-8"/><path d="M15 9h3M15 12h3M15 15h3"/><path d="m6.5 9 3 6M9.5 9l-3 6"/></svg>`,
+                api: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8 4 12l4 4M16 8l4 4-4 4M14 5l-4 14"/></svg>`,
+                ltspice: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 5 13h6l-1 9 9-13h-6l1-7Z"/></svg>`,
+                ai: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16M4 12h16M7 7l10 10M17 7 7 17"/><circle cx="12" cy="12" r="3"/></svg>`,
+                circuit: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h4M16 12h4M8 12a4 4 0 0 1 8 0 4 4 0 0 1-8 0Z"/><path d="M12 4v4M12 16v4"/></svg>`,
+                ac: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12c2.5-6 5.5-6 8 0s5.5 6 10 0"/></svg>`,
+                opamp: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5v14l12-7L6 5Z"/><path d="M3 9h3M3 15h3M18 12h3M7.5 9h2M7.5 15h2M8.5 14v2"/></svg>`,
+                digital: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h5v10H4zM15 7h5v10h-5zM9 12h6"/><path d="M6.5 10v4M17.5 10v4"/></svg>`,
+                kcl: `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v6M12 15v6M3 12h6M15 12h6"/></svg>`,
+                phasor: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 18h14M6 18 17 7"/><path d="M13 7h4v4"/><path d="M8 18a7 7 0 0 1 2-5"/></svg>`,
+                csv: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l3 3v15H6V3Z"/><path d="M14 3v4h4M8 11h8M8 15h8M8 19h5"/></svg>`,
+                log: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"/><path d="M8 9h8M8 12h8M8 15h5"/></svg>`,
+                calc: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18H6z"/><path d="M8 6h8v3H8zM8 12h2M12 12h2M16 12h0M8 15h2M12 15h2M16 15h0M8 18h6"/></svg>`,
+                plot: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16M5 17l4-5 4 3 6-8"/><circle cx="9" cy="12" r="1.4"/><circle cx="13" cy="15" r="1.4"/><circle cx="19" cy="7" r="1.4"/></svg>`,
+                automation: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8a4 4 0 1 1 0 8 4 4 0 0 1 0-8Z"/><path d="M12 2v3M12 19v3M4.9 4.9 7 7M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1 7 17M17 7l2.1-2.1"/></svg>`,
+            };
+            return glyphs[type] ?? `<span>${type.toUpperCase().slice(0, 3)}</span>`;
+        }
+
+        function skillIcon(icon) {
+            if (icon === 'htmlcss') {
+                return `<span class="skills-chip-icon skills-chip-icon--stack skills-chip-icon--htmlcss" aria-hidden="true"><i class="devicon-html5-plain colored"></i><i class="devicon-css3-plain colored"></i></span>`;
+            }
+
+            if (icon === 'python') {
+                return `<span class="skills-chip-icon skills-chip-icon--python">${skillGlyph(icon)}</span>`;
+            }
+
+            const devicon = DEVICON_SKILL_ICONS[icon];
+            if (devicon) {
+                return `<span class="skills-chip-icon skills-chip-icon--${icon}" aria-hidden="true"><i class="${devicon}"></i></span>`;
+            }
+
+            return `<span class="skills-chip-icon skills-chip-icon--custom skills-chip-icon--${icon}">${skillGlyph(icon)}</span>`;
+        }
+
+        function skillChip(label, icon) {
+            return `<span class="skills-chip">${skillIcon(icon)}<span class="skills-chip-label">${label}</span></span>`;
+        }
+
+        function skillIconKeyForLabel(label) {
+            const normalized = label.toLowerCase();
+            const iconKeys = {
+                'arduino': 'arduino',
+                'python': 'python',
+                'excel': 'excel',
+                'energy systems': 'circuit',
+                'unity': 'unity',
+                'c#': 'csharp',
+                'animation': 'automation',
+                'gameplay': 'unity',
+                'apis': 'api',
+                'web scraping': 'api',
+                'ai': 'ai',
+                'ltspice': 'ltspice',
+                'circuit analysis': 'circuit',
+                'ac circuits': 'ac',
+                'op-amps': 'opamp',
+            };
+            return iconKeys[normalized] ?? null;
+        }
+
         const SECTION_CONTENT = {
             root: {
                 title: 'ME',
                 subtitle: 'Intro & How To Start',
-                content: `<p class="panel-body" style="margin-bottom: 20px;">Hi!
-                            I'm an Electrical Engineering student with a background in computer science. I?ve worked on a Unity/C# project, and I?m currently building projects with Arduino and electronic circuits. I?m interested in power/energy systems and automation. Recently, I?ve also become interested in embedded systems and electronics. I enjoy building things that combine hardware and software, and I like understanding how real systems work through hands-on projects. 
-
-                            You could say I am something of a tinkerer myself.
-
-                            I am actively seeking opportunities such as internships where I can continue learning, contribute to real engineering projects, grow my technical skills, and be part of a collaborative engineering team.</p>`
+                content: `<p class="panel-body" style="margin-bottom: 20px;">
+                        I'm an Electrical Engineering student with a background in computer science. I've worked on a Unity/C# project, and I'm currently building projects with Arduino and electronic circuits.
+                        I'm interested in power/energy systems and automation. Recently, I've also become interested in embedded systems and electronics. I enjoy building things that combine hardware and software, and I like understanding how real systems work through hands-on projects. 
+                            </p>`
             },
             home: {
-                title: 'Intro',
+                title: 'Intro',      
                 subtitle: 'Introduction',
                 content: `<p class="panel-body" style="margin-bottom: 20px;">Hi, welcome to my portfolio website, use the nodes to navigate through areas of me.
                 <br><b>NOTE:</b> This is early version, it is still in experimental phase.</p>`
@@ -757,7 +890,7 @@
                             <div class="education-dot"></div>
                             <div class="education-content">
                                 <div class="education-period">2023 - 2025</div>
-                                <div class="education-school">Coll?ge Lionel-Groulx</div>
+                                <div class="education-school">Collège Lionel-Groulx</div>
                                 <div class="education-degree">DEC in Computer Science and Mathematics</div>
                             </div>
                         </div>
@@ -779,12 +912,12 @@
                                     <div class="skills-card-meta">Core Languages</div>
                                 </div>
                                 <div class="skills-chip-row">
-                                    <span class="skills-chip"><span class="skills-chip-icon">PY</span>Python</span>
-                                    <span class="skills-chip"><span class="skills-chip-icon">C++</span>C++</span>
-                                    <span class="skills-chip"><span class="skills-chip-icon">C#</span>C#</span>
-                                    <span class="skills-chip"><span class="skills-chip-icon">JS</span>JavaScript</span>
-                                    <span class="skills-chip"><span class="skills-chip-icon">HTML</span>HTML/CSS</span>
-                                    <span class="skills-chip"><span class="skills-chip-icon">G</span>Git</span>
+                                    ${skillChip('Python', 'python')}
+                                    ${skillChip('C++', 'cpp')}
+                                    ${skillChip('C#', 'csharp')}
+                                    ${skillChip('JavaScript', 'javascript')}
+                                    ${skillChip('HTML/CSS', 'htmlcss')}
+                                    ${skillChip('Git', 'git')}
                                 </div>
                             </section>
 
@@ -794,14 +927,14 @@
                                     <div class="skills-card-meta">Build Stack</div>
                                 </div>
                                 <div class="skills-chip-row">
-                                    <span class="skills-chip"><span class="skills-chip-icon">N</span>Node.js</span>
-                                    <span class="skills-chip"><span class="skills-chip-icon">R</span>React</span>
-                                    <span class="skills-chip"><span class="skills-chip-icon">API</span>APIs</span>
-                                    <span class="skills-chip"><span class="skills-chip-icon">EX</span>Excel</span>
-                                    <span class="skills-chip"><span class="skills-chip-icon">LT</span>LTspice</span>
-                                    <span class="skills-chip"><span class="skills-chip-icon">U</span>Unity</span>
-                                    <span class="skills-chip"><span class="skills-chip-icon">AR</span>Arduino</span>
-                                    <span class="skills-chip"><span class="skills-chip-icon">AI</span>AI</span>
+                                    ${skillChip('Node.js', 'node')}
+                                    ${skillChip('React', 'react')}
+                                    ${skillChip('APIs', 'api')}
+                                    ${skillChip('Excel', 'excel')}
+                                    ${skillChip('LTspice', 'ltspice')}
+                                    ${skillChip('Unity', 'unity')}
+                                    ${skillChip('Arduino', 'arduino')}
+                                    ${skillChip('AI', 'ai')}
                                 </div>
                             </section>
 
@@ -811,12 +944,12 @@
                                     <div class="skills-card-meta">Engineering Foundations</div>
                                 </div>
                                 <div class="skills-chip-row">
-                                    <span class="skills-chip"><span class="skills-chip-icon">CA</span>Circuit Analysis</span>
-                                    <span class="skills-chip"><span class="skills-chip-icon">AC</span>AC Circuits</span>
-                                    <span class="skills-chip"><span class="skills-chip-icon">OP</span>Op-Amps</span>
-                                    <span class="skills-chip"><span class="skills-chip-icon">DL</span>Digital Logic</span>
-                                    <span class="skills-chip"><span class="skills-chip-icon">KCL</span>KCL/KVL</span>
-                                    <span class="skills-chip"><span class="skills-chip-icon">PH</span>Phasors</span>
+                                    ${skillChip('Circuit Analysis', 'circuit')}
+                                    ${skillChip('AC Circuits', 'ac')}
+                                    ${skillChip('Op-Amps', 'opamp')}
+                                    ${skillChip('Digital Logic', 'digital')}
+                                    ${skillChip('KCL/KVL', 'kcl')}
+                                    ${skillChip('Phasors', 'phasor')}
                                 </div>
                             </section>
 
@@ -826,12 +959,12 @@
                                     <div class="skills-card-meta">Engineering Workflow</div>
                                 </div>
                                 <div class="skills-chip-row">
-                                    <span class="skills-chip"><span class="skills-chip-icon">CSV</span>CSV Processing</span>
-                                    <span class="skills-chip"><span class="skills-chip-icon">EX</span>Excel Processing</span>
-                                    <span class="skills-chip"><span class="skills-chip-icon">LOG</span>Data Logging</span>
-                                    <span class="skills-chip"><span class="skills-chip-icon">CAL</span>Calculations</span>
-                                    <span class="skills-chip"><span class="skills-chip-icon">PLT</span>Plotting</span>
-                                    <span class="skills-chip"><span class="skills-chip-icon">AUT</span>Automation</span>
+                                    ${skillChip('CSV Processing', 'csv')}
+                                    ${skillChip('Excel Processing', 'excel')}
+                                    ${skillChip('Data Logging', 'log')}
+                                    ${skillChip('Calculations', 'calc')}
+                                    ${skillChip('Plotting', 'plot')}
+                                    ${skillChip('Automation', 'automation')}
                                 </div>
                             </section>
                         </div>
@@ -914,13 +1047,23 @@
                     </button>
                 `).join('')}</div>`
                 : '';
-            const tags = (projectView.stack || project.stack || []).map(tag => `
-                <span class="project-tag" style="border-color: ${PCB_GREEN}; color: ${PCB_GREEN};">${tag}</span>
-            `).join('');
+            const tags = (projectView.stack || project.stack || []).map(tag => {
+                const iconKey = skillIconKeyForLabel(tag);
+                return `
+                    <span class="project-tag" style="border-color: ${PCB_GREEN}; color: ${PCB_GREEN};">
+                        ${iconKey ? skillIcon(iconKey) : ''}
+                        <span>${tag}</span>
+                    </span>
+                `;
+            }).join('');
             const highlights = (projectView.highlights || project.highlights || []).map(item => `<li>${item}</li>`).join('');
-            const slides = images.map((item) => {
+            const slides = images.map((item, index) => {
                 const slideMarkup = item.src
-                    ? `<img class="project-image-media ${item.fitClass || ""}" src="${item.src}" alt="${item.label}">`
+                    ? `
+                        <button class="project-image-open" type="button" onclick="openProjectImage(${index})" aria-label="Open full image: ${item.label}">
+                            <img class="project-image-media ${item.fitClass || ""}" src="${item.src}" alt="${item.label}">
+                        </button>
+                    `
                     : `
                         <div class="project-image-placeholder">
                             <div class="project-image-label">${item.label}</div>
@@ -956,7 +1099,7 @@
                     <div class="project-copy">
                         <div class="project-card-title">${project.name}</div>
                         <div class="project-detail-meta">${projectView.role || project.role}</div>
-                        <div class="project-card-desc" style="font-size: 11px; color: rgba(255,255,255,0.58);">${projectView.summary || project.summary}</div>
+                        <div class="project-card-desc project-detail-summary">${projectView.summary || project.summary}</div>
                         <div>${tags}</div>
                         <details class="project-more">
                             <summary class="project-more-toggle">See more</summary>
@@ -993,6 +1136,9 @@
             if (activeNode?.section === 'projects') {
                 updateProjectImageDisplay();
             }
+            if (document.querySelector('.image-lightbox.active')) {
+                updateProjectImageLightbox();
+            }
         }
 
         function updateProjectImageDisplay() {
@@ -1010,6 +1156,46 @@
             if (counter) {
                 counter.textContent = `${normalizedImageIndex + 1} / ${count}`;
             }
+        }
+
+        function updateProjectImageLightbox() {
+            const project = PROJECTS_DATA[activeProjectIndex] ?? PROJECTS_DATA[0];
+            const projectView = getActiveProjectView(project);
+            const images = projectView.images?.length ? projectView.images : [];
+            const count = images.length || 1;
+            const normalizedImageIndex = ((activeProjectImageIndex % count) + count) % count;
+            const image = images[normalizedImageIndex];
+            const lightbox = document.querySelector('.image-lightbox');
+            const media = lightbox?.querySelector('.image-lightbox-media');
+
+            if (!lightbox || !media || !image?.src) return;
+            media.src = image.src;
+            media.alt = image.label || project.name;
+        }
+
+        function openProjectImage(index = activeProjectImageIndex) {
+            const project = PROJECTS_DATA[activeProjectIndex] ?? PROJECTS_DATA[0];
+            const projectView = getActiveProjectView(project);
+            const images = projectView.images?.length ? projectView.images : [];
+            const target = images[index];
+            if (!target?.src) return;
+
+            activeProjectImageIndex = index;
+            updateProjectImageDisplay();
+            updateProjectImageLightbox();
+            const lightbox = document.querySelector('.image-lightbox');
+            lightbox?.classList.add('active');
+            lightbox?.setAttribute('aria-hidden', 'false');
+        }
+
+        function closeProjectImage() {
+            const lightbox = document.querySelector('.image-lightbox');
+            lightbox?.classList.remove('active');
+            lightbox?.setAttribute('aria-hidden', 'true');
+        }
+
+        function cycleProjectLightbox(direction) {
+            cycleProjectImage(direction);
         }
 
         function updateStatusDock() {
@@ -1096,6 +1282,7 @@
             pan.x = rect.width / 2 - ratio * (rect.width / 2 - pan.x);
             pan.y = rect.height / 2 - ratio * (rect.height / 2 - pan.y);
             zoom = nz;
+            cameraWasAdjusted = true;
         }
 
         // ============================================================================
@@ -1144,8 +1331,8 @@
             canvas = document.querySelector('canvas');
             ctx = canvas.getContext('2d');
 
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            resizeCanvas();
+            setInitialCamera();
 
             initParticles();
             initStates();
@@ -1161,8 +1348,10 @@
             canvas.addEventListener('touchcancel', onTouchEnd, { passive: false });
 
             window.addEventListener('resize', () => {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
+                resizeCanvas();
+                if (!cameraWasAdjusted) {
+                    setInitialCamera();
+                }
             });
 
             animate();
@@ -1231,6 +1420,19 @@
                 <div class="panel-backdrop" onclick="closePanel()"></div>
                 <div class="side-panel"></div>
 
+                <div class="image-lightbox" onclick="closeProjectImage()" aria-hidden="true">
+                    <button class="image-lightbox-close" type="button" onclick="event.stopPropagation(); closeProjectImage();" aria-label="Close full image">X</button>
+                    <button class="image-lightbox-nav image-lightbox-nav--prev" type="button" onclick="event.stopPropagation(); cycleProjectLightbox(-1);" aria-label="Previous full image">
+                        <span class="project-image-arrow-icon" aria-hidden="true"></span>
+                    </button>
+                    <figure class="image-lightbox-figure" onclick="event.stopPropagation();">
+                        <img class="image-lightbox-media" src="" alt="">
+                    </figure>
+                    <button class="image-lightbox-nav image-lightbox-nav--next" type="button" onclick="event.stopPropagation(); cycleProjectLightbox(1);" aria-label="Next full image">
+                        <span class="project-image-arrow-icon" aria-hidden="true"></span>
+                    </button>
+                </div>
+
                 <div class="intro-overlay">
                     <div class="intro-spinner"></div>
                     <div class="intro-text"></div>
@@ -1251,6 +1453,16 @@
         window.closePanel = closePanel;
         window.fireZoom = fireZoom;
         window.openNodeById = openNodeById;
+        window.openProjectImage = openProjectImage;
+        window.closeProjectImage = closeProjectImage;
+        window.cycleProjectLightbox = cycleProjectLightbox;
+
+        document.addEventListener('keydown', (event) => {
+            if (!document.querySelector('.image-lightbox.active')) return;
+            if (event.key === 'Escape') closeProjectImage();
+            if (event.key === 'ArrowLeft') cycleProjectLightbox(-1);
+            if (event.key === 'ArrowRight') cycleProjectLightbox(1);
+        });
 
 function syncProjectImageShell() {
     const shell = document.querySelector('.project-image-shell');
@@ -1274,16 +1486,14 @@ function syncProjectImageShell() {
     const mobile = window.innerWidth <= 680;
     const maxShellWidth = Math.min(detail?.clientWidth || shell.parentElement?.clientWidth || window.innerWidth, mobile ? window.innerWidth - 36 : 520);
     const maxShellHeight = mobile ? 210 : Math.min(Math.max(window.innerHeight * 0.30, 220), 320);
-    const chromeWidth = mobile ? 34 : 38;
-    const chromeHeight = 8;
-    const maxImageWidth = Math.max(120, maxShellWidth - chromeWidth);
-    const maxImageHeight = Math.max(120, maxShellHeight - chromeHeight);
+    const maxImageWidth = Math.max(120, maxShellWidth);
+    const maxImageHeight = Math.max(120, maxShellHeight);
     const scale = Math.min(maxImageWidth / img.naturalWidth, maxImageHeight / img.naturalHeight, 1);
     const fittedWidth = Math.round(img.naturalWidth * scale);
     const fittedHeight = Math.round(img.naturalHeight * scale);
 
-    shell.style.setProperty('--project-shell-width', `${Math.min(maxShellWidth, fittedWidth + chromeWidth)}px`);
-    shell.style.setProperty('--project-shell-height', `${Math.min(maxShellHeight, fittedHeight + chromeHeight)}px`);
+    shell.style.setProperty('--project-shell-width', `${fittedWidth}px`);
+    shell.style.setProperty('--project-shell-height', `${fittedHeight}px`);
 }
 
 const originalUpdatePanel = updatePanel;
