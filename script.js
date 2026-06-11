@@ -75,6 +75,16 @@
         ];
 
         const EDGES = NODES.filter(n => n.parentId).map(n => ({ from: n.parentId, to: n.id }));
+        const MOBILE_NODE_POSITIONS = {
+            root:     { x: 0.50, y: 0.50 },
+            home:     { x: 0.50, y: 0.24 },
+            work:     { x: 0.25, y: 0.33 },
+            resume:   { x: 0.25, y: 0.43 },
+            projects: { x: 0.75, y: 0.43 },
+            contact:  { x: 0.25, y: 0.59 },
+            about:    { x: 0.75, y: 0.59 },
+            skills:   { x: 0.50, y: 0.76 },
+        };
         const TRACE_LANE_OFFSETS = {
             home:     { x: 12, y: 0 },
             projects: { x: 0, y: -16 },
@@ -184,9 +194,13 @@
         }
 
         function nodePos(node) {
+            const mobilePosition = canvasView.width <= 680 ? MOBILE_NODE_POSITIONS[node.id] : null;
+            const x = mobilePosition?.x ?? node.x;
+            const y = mobilePosition?.y ?? node.y;
+
             return {
-                x: node.x * canvasView.width * zoom + pan.x,
-                y: node.y * canvasView.height * zoom + pan.y,
+                x: x * canvasView.width * zoom + pan.x,
+                y: y * canvasView.height * zoom + pan.y,
             };
         }
 
