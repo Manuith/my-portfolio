@@ -701,12 +701,12 @@
                         images: [
                             {
                                 label: 'Prototype V2 Build',
-                                note: 'Add your upgraded physical prototype photo here.',
+                                note: 'Add V2 physical prototype photo here.',
                                 fitClass: 'project-image-media--photo'
                             },
                             {
                                 label: 'Prototype V2 Schematic',
-                                note: 'Add your revised schematic, CAD layout, or instrumentation setup here.',
+                                note: 'Add revised schematic, CAD layout, or instrumentation setup here.',
                                 fitClass: 'project-image-media--schematic'
                             }
                         ],
@@ -791,6 +791,9 @@
             }
         ];
 
+        // Brand logos should use original-color icons. Prefer Devicon's `colored`
+        // class when it exists; otherwise use a multi-color fallback shaped close
+        // to the original mark.
         const DEVICON_SKILL_ICONS = {
             cpp: 'devicon-cplusplus-plain colored',
             csharp: 'devicon-csharp-plain colored',
@@ -800,7 +803,10 @@
             react: 'devicon-react-original colored',
             unity: 'devicon-unity-plain',
             arduino: 'devicon-arduino-plain colored',
+            matlab: 'devicon-matlab-plain colored',
         };
+
+        const BRAND_COLOR_CUSTOM_SKILLS = new Set(['altium', 'kicad']);
 
         function skillGlyph(type) {
             const glyphs = {
@@ -808,6 +814,8 @@
                 excel: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5 12 4v16L4 18.5v-13Z"/><path d="M12 6h8v12h-8"/><path d="M15 9h3M15 12h3M15 15h3"/><path d="m6.5 9 3 6M9.5 9l-3 6"/></svg>`,
                 api: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8 4 12l4 4M16 8l4 4-4 4M14 5l-4 14"/></svg>`,
                 ltspice: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 5 13h6l-1 9 9-13h-6l1-7Z"/></svg>`,
+                altium: `<svg viewBox="0 0 24 24" aria-hidden="true"><circle class="altium-gold" cx="12" cy="12" r="8"/><path class="altium-dark" d="M7 15.5 11.2 6h2L17 15.5h-2.2l-.8-2H10.2l-.8 2H7Zm3.8-3.7h2.6L12.1 8.4l-1.3 3.4Z"/></svg>`,
+                kicad: `<svg viewBox="0 0 24 24" aria-hidden="true"><path class="kicad-blue" d="M6 6h12v12H6z"/><path class="kicad-gold" d="M9 3v3M15 3v3M9 18v3M15 18v3M3 9h3M3 15h3M18 9h3M18 15h3"/><circle class="kicad-white" cx="12" cy="12" r="2.4"/></svg>`,
                 ai: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16M4 12h16M7 7l10 10M17 7 7 17"/><circle cx="12" cy="12" r="3"/></svg>`,
                 circuit: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h4M16 12h4M8 12a4 4 0 0 1 8 0 4 4 0 0 1-8 0Z"/><path d="M12 4v4M12 16v4"/></svg>`,
                 ac: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12c2.5-6 5.5-6 8 0s5.5 6 10 0"/></svg>`,
@@ -831,6 +839,10 @@
 
             if (icon === 'python') {
                 return `<span class="skills-chip-icon skills-chip-icon--python">${skillGlyph(icon)}</span>`;
+            }
+
+            if (BRAND_COLOR_CUSTOM_SKILLS.has(icon)) {
+                return `<span class="skills-chip-icon skills-chip-icon--custom skills-chip-icon--brand skills-chip-icon--${icon}">${skillGlyph(icon)}</span>`;
             }
 
             const devicon = DEVICON_SKILL_ICONS[icon];
@@ -929,8 +941,9 @@
                                     ${skillChip('Python', 'python')}
                                     ${skillChip('C++', 'cpp')}
                                     ${skillChip('C#', 'csharp')}
+                                    ${skillChip('Matlab', 'matlab')}
                                     ${skillChip('JavaScript', 'javascript')}
-                                    ${skillChip('HTML/CSS', 'htmlcss')}
+                                    ${skillChip('Html/CSS', 'htmlcss')}
                                     ${skillChip('Git', 'git')}
                                 </div>
                             </section>
@@ -944,10 +957,7 @@
                                     ${skillChip('Node.js', 'node')}
                                     ${skillChip('React', 'react')}
                                     ${skillChip('APIs', 'api')}
-                                    ${skillChip('Excel', 'excel')}
-                                    ${skillChip('LTspice', 'ltspice')}
                                     ${skillChip('Unity', 'unity')}
-                                    ${skillChip('Arduino', 'arduino')}
                                     ${skillChip('AI', 'ai')}
                                 </div>
                             </section>
@@ -959,11 +969,15 @@
                                 </div>
                                 <div class="skills-chip-row">
                                     ${skillChip('Circuit Analysis', 'circuit')}
-                                    ${skillChip('AC Circuits', 'ac')}
+                                    ${skillChip('Ac Circuits', 'ac')}
                                     ${skillChip('Op-Amps', 'opamp')}
                                     ${skillChip('Digital Logic', 'digital')}
                                     ${skillChip('KCL/KVL', 'kcl')}
                                     ${skillChip('Phasors', 'phasor')}
+                                    ${skillChip('Arduino', 'arduino')}
+                                    ${skillChip('LTSpice', 'ltspice')}
+                                    ${skillChip('Altium', 'altium')}
+                                    ${skillChip('KiCad', 'kicad')}
                                 </div>
                             </section>
 
@@ -974,7 +988,7 @@
                                 </div>
                                 <div class="skills-chip-row">
                                     ${skillChip('CSV Processing', 'csv')}
-                                    ${skillChip('Excel Processing', 'excel')}
+                                    ${skillChip('Excel', 'excel')}
                                     ${skillChip('Data Logging', 'log')}
                                     ${skillChip('Calculations', 'calc')}
                                     ${skillChip('Plotting', 'plot')}

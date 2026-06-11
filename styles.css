@@ -681,7 +681,7 @@
             min-height: 190px;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            justify-content: flex-start;
         }
 
         .skills-card-header {
@@ -741,7 +741,7 @@
             font-family: 'JetBrains Mono', monospace;
             font-size: 11px;
             letter-spacing: 0.06em;
-            text-transform: uppercase;
+            text-transform: none;
             padding: 6px 8px;
         }
 
@@ -785,6 +785,16 @@
             stroke-linejoin: round;
         }
 
+        .skills-chip-icon--brand svg {
+            fill: initial;
+            stroke: initial;
+        }
+
+        .skills-chip-icon--brand path,
+        .skills-chip-icon--brand circle {
+            stroke: none;
+        }
+
         .skills-chip-icon--python svg {
             width: 16px;
             height: 16px;
@@ -818,6 +828,29 @@
 
         .skills-chip-icon--ltspice {
             color: #c40000;
+        }
+
+        .skills-chip-icon--altium .altium-gold {
+            fill: #c8a85a;
+        }
+
+        .skills-chip-icon--altium .altium-dark {
+            fill: #202020;
+        }
+
+        .skills-chip-icon--kicad .kicad-blue {
+            fill: #314cb0;
+        }
+
+        .skills-chip-icon--kicad .kicad-gold {
+            fill: none;
+            stroke: #f2c94c;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+        }
+
+        .skills-chip-icon--kicad .kicad-white {
+            fill: #ffffff;
         }
 
         .skills-chip-icon--ai {
