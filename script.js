@@ -515,10 +515,7 @@
             if (wasDrag && (dx > 5 || dy > 5)) return;
             const hit = hitTest(e.clientX, e.clientY);
             if (hit?.label) {
-                if (hit.section === 'projects' && activeNode?.id !== 'projects') activeProjectIndex = 0;
-                activeNode = hit;
-                updatePanel();
-                updateStatusDock();
+                openNodeById(hit.id);
             }
         }
 
@@ -642,10 +639,7 @@
                 if (!touchState.tapMoved) {
                     const hit = hitTest(touchState.lastPoint.x || touchState.tapStart.x, touchState.lastPoint.y || touchState.tapStart.y);
                     if (hit?.label) {
-                        if (hit.section === 'projects' && activeNode?.id !== 'projects') activeProjectIndex = 0;
-                        activeNode = hit;
-                        updatePanel();
-                        updateStatusDock();
+                        openNodeById(hit.id);
                     }
                 }
             }
@@ -662,6 +656,7 @@
 
         const PROJECTS_DATA = [
             {
+                slug: 'mini-wind-energy-harvester',
                 name: 'Mini Wind Energy Harvester',
                 role: 'Prototype Series',
                 imageLabel: 'Generator Monitoring System',
@@ -721,6 +716,7 @@
                 ]
             },
             {
+                slug: 'dream-game-rpg',
                 name: 'Dream Game RPG',
                 role: 'Team Project',
                 imageLabel: 'Gameplay Scene',
@@ -733,6 +729,7 @@
                         fitClass: 'project-image-media--photo'
                     },
                     {
+                        //ADD CONSTRAINTS FOR IK TO REPLICATE NATURAL
                         label: 'Procedural Motion',
                         note: 'Inverse kinematics arm simulation and procedural animation logic.',
                         src: 'assets/images/projects/FABRIK.png',
@@ -754,6 +751,7 @@
                 ]
             },
             {
+                slug: 'sigfeed',
                 name: 'SigFeed',
                 role: 'In Progress',
                 imageLabel: 'Platform Overview',
@@ -772,6 +770,7 @@
                 ]
             },
             {
+                slug: 'ee-lab-simulation',
                 name: 'EE Lab & Simulation',
                 role: 'Simulation',
                 imageLabel: 'LTspice Analysis',
@@ -782,7 +781,7 @@
                     { label: 'Lab Measurements', note: 'Use this slot for breadboard builds, measured behavior, or validation results.', fitClass: 'project-image-media--photo' }
                 ],
                 summary: 'Simulated and analyzed circuits involving resistors, capacitors, inductors, op-amps, AC sources, and transient behavior using LTspice and core circuit analysis methods.',
-                stack: ['LTspice', 'Circuit Analysis', 'AC Circuits', 'Op-Amps'],
+                stack: ['LTSpice', 'Circuit Analysis', 'Ac Circuits', 'Op-Amps'],
                 highlights: [
                     'KCL, KVL, Thevenin/Norton equivalents, impedance analysis, and phasors.',
                     'Interpretation of voltage, current, gain, and frequency response.',
@@ -790,6 +789,67 @@
                 ]
             }
         ];
+
+        function slugifyProjectName(name) {
+            return name
+                .toLowerCase()
+                .replace(/&/g, 'and')
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-+|-+$/g, '');
+        }
+
+        function getProjectSlug(project) {
+            return project.slug || slugifyProjectName(project.name);
+        }
+
+        function getProjectRoute(index) {
+            const project = PROJECTS_DATA[index] ?? PROJECTS_DATA[0];
+            return `#/projects/${getProjectSlug(project)}`;
+        }
+
+        function setRoute(route, replace = false) {
+            if (window.location.hash === route) return;
+            const method = replace ? 'replaceState' : 'pushState';
+            history[method](null, '', route);
+        }
+
+        function clearRoute() {
+            if (!window.location.hash) return;
+            history.replaceState(null, '', `${window.location.pathname}${window.location.search}`);
+        }
+
+        function findProjectIndexBySlug(slug) {
+            return PROJECTS_DATA.findIndex(project => getProjectSlug(project) === slug);
+        }
+
+        function applyRouteFromHash() {
+            const route = decodeURIComponent(window.location.hash.replace(/^#\/?/, ''));
+            if (!route) {
+                if (activeNode) closePanel({ skipRouteUpdate: true });
+                return false;
+            }
+
+            const [section, slug] = route.split('/');
+            if (section === 'projects') {
+                if (slug) {
+                    const projectIndex = findProjectIndexBySlug(slug);
+                    if (projectIndex >= 0) {
+                        openProjectMission(projectIndex, { skipRouteUpdate: true });
+                        return true;
+                    }
+                }
+
+                openNodeById('projects', { skipRouteUpdate: true });
+                return true;
+            }
+
+            if (NODES.some(node => node.id === section)) {
+                openNodeById(section, { skipRouteUpdate: true });
+                return true;
+            }
+
+            return false;
+        }
 
         // Brand logos should use original-color icons. Prefer Devicon's `colored`
         // class when it exists; otherwise use a multi-color fallback shaped close
@@ -1145,6 +1205,7 @@
             if (activeNode?.section === 'projects') {
                 updatePanel();
                 updateStatusDock();
+                setRoute(getProjectRoute(index));
             }
         }
 
@@ -1248,7 +1309,7 @@
             }
         }
 
-        function openProjectMission(index) {
+        function openProjectMission(index, options = {}) {
             const projectsNode = NODES.find(node => node.id === 'projects');
             if (!projectsNode) return;
             activeProjectIndex = index;
@@ -1257,9 +1318,12 @@
             activeNode = projectsNode;
             updatePanel();
             updateStatusDock();
+            if (!options.skipRouteUpdate) {
+                setRoute(getProjectRoute(index));
+            }
         }
 
-        function openNodeById(nodeId) {
+        function openNodeById(nodeId, options = {}) {
             const node = NODES.find(item => item.id === nodeId);
             if (!node) return;
             if (node.section === 'projects') {
@@ -1270,6 +1334,9 @@
             activeNode = node;
             updatePanel();
             updateStatusDock();
+            if (!options.skipRouteUpdate) {
+                setRoute(node.section === 'projects' ? '#/projects' : `#/${node.id}`);
+            }
         }
 
         function updatePanel() {
@@ -1292,7 +1359,7 @@
 
         }
 
-        function closePanel() {
+        function closePanel(options = {}) {
             const panel = document.querySelector('.side-panel');
             const backdrop = document.querySelector('.panel-backdrop');
 
@@ -1300,6 +1367,9 @@
             backdrop.classList.remove('active');
             activeNode = null;
             updateStatusDock();
+            if (!options.skipRouteUpdate) {
+                clearRoute();
+            }
         }
 
         function fireZoom(direction) {
@@ -1475,15 +1545,22 @@
 
             updateStatusDock();
             init();
+            applyRouteFromHash();
         });
 
         // Global functions
         window.closePanel = closePanel;
         window.fireZoom = fireZoom;
         window.openNodeById = openNodeById;
+        window.openProjectMission = openProjectMission;
+        window.setProjectTab = setProjectTab;
+        window.setProjectVariant = setProjectVariant;
         window.openProjectImage = openProjectImage;
         window.closeProjectImage = closeProjectImage;
         window.cycleProjectLightbox = cycleProjectLightbox;
+
+        window.addEventListener('hashchange', applyRouteFromHash);
+        window.addEventListener('popstate', applyRouteFromHash);
 
         document.addEventListener('keydown', (event) => {
             if (!document.querySelector('.image-lightbox.active')) return;
