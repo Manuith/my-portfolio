@@ -776,9 +776,27 @@
                 imageLabel: 'LTspice Analysis',
                 status: 'Completed',
                 images: [
-                    { label: 'LTspice Analysis', note: 'Add a circuit simulation screenshot with transient or AC response plots.', fitClass: 'project-image-media--schematic' },
-                    { label: 'Theory vs Simulation', note: 'Use this slot for calculations compared against LTspice results.', fitClass: 'project-image-media--schematic' },
-                    { label: 'Lab Measurements', note: 'Use this slot for breadboard builds, measured behavior, or validation results.', fitClass: 'project-image-media--photo' }
+                    {
+                        label: 'LTspice Circuit',
+                        note: 'Circuit simulation schematic used for EE lab analysis.',
+                        src: 'assets/images/projects/LTSpice_circuit.png',
+                        fitClass: 'project-image-media--schematic'
+                    },
+                    {
+                        label: 'Oscilloscope Result',
+                        note: 'Measured waveform captured during circuit validation.',
+                        src: 'assets/images/projects/oscilloscope.jpeg',
+                        fitClass: 'project-image-media--photo'
+                    }
+                    /*
+                    ,
+                    {
+                        label: 'Breadboard Circuit',
+                        note: 'Physical breadboard setup used to validate the circuit.',
+                        src: 'assets/images/projects/breadboard-circuit.jpg',
+                        fitClass: 'project-image-media--photo'
+                    }
+                    */
                 ],
                 summary: 'Simulated and analyzed circuits involving resistors, capacitors, inductors, op-amps, AC sources, and transient behavior using LTspice and core circuit analysis methods.',
                 stack: ['LTSpice', 'Circuit Analysis', 'Ac Circuits', 'Op-Amps'],
