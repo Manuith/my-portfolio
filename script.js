@@ -657,7 +657,6 @@
         const PROJECTS_DATA = [
             {
                 slug: 'mini-wind-energy-harvester',
-                aliases: ['mini-wind-energy-system', 'wind-energy-system'],
                 name: 'Mini Wind Energy Harvester',
                 role: 'Prototype Series',
                 imageLabel: 'Generator Monitoring System',
@@ -718,7 +717,6 @@
             },
             {
                 slug: 'dream-game-rpg',
-                aliases: ['dream-game'],
                 name: 'Dream Game RPG',
                 role: 'Team Project',
                 imageLabel: 'Gameplay Scene',
@@ -754,7 +752,6 @@
             },
             {
                 slug: 'sigfeed',
-                aliases: ['sig-feed'],
                 name: 'SigFeed',
                 role: 'In Progress',
                 imageLabel: 'Platform Overview',
@@ -774,7 +771,6 @@
             },
             {
                 slug: 'ee-lab-simulation',
-                aliases: ['electrical-engineering-lab-work', 'ee-lab-work', 'ee-lab', 'ltspice-lab'],
                 name: 'EE Lab & Simulation',
                 role: 'Simulation',
                 imageLabel: 'LTspice Analysis',
@@ -840,21 +836,8 @@
             history.replaceState(null, '', `${window.location.pathname}${window.location.search}`);
         }
 
-        function normalizeRouteSlug(value) {
-            return slugifyProjectName(value || '');
-        }
-
-        function getProjectRouteSlugs(project) {
-            return [
-                getProjectSlug(project),
-                slugifyProjectName(project.name),
-                ...(project.aliases || [])
-            ].map(normalizeRouteSlug);
-        }
-
         function findProjectIndexBySlug(slug) {
-            const normalizedSlug = normalizeRouteSlug(slug);
-            return PROJECTS_DATA.findIndex(project => getProjectRouteSlugs(project).includes(normalizedSlug));
+            return PROJECTS_DATA.findIndex(project => getProjectSlug(project) === slug);
         }
 
         function applyRouteFromHash() {
