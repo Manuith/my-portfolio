@@ -857,7 +857,7 @@
             return PROJECTS_DATA.findIndex(project => getProjectRouteSlugs(project).includes(normalizedSlug));
         }
 
-        function applyRouteFromHash(options = {}) {
+        function applyRouteFromHash() {
             const route = decodeURIComponent(window.location.hash.replace(/^#\/?/, ''));
             if (!route) {
                 if (activeNode) closePanel({ skipRouteUpdate: true });
@@ -870,18 +870,16 @@
                     const projectIndex = findProjectIndexBySlug(slug);
                     if (projectIndex >= 0) {
                         openProjectMission(projectIndex, { skipRouteUpdate: true });
-                        if (options.clearAfterOpen) clearRoute();
                         return true;
                     }
                 }
 
-                if (activeNode) closePanel({ skipRouteUpdate: true });
-                return false;
+                openNodeById('projects', { skipRouteUpdate: true });
+                return true;
             }
 
             if (NODES.some(node => node.id === section)) {
                 openNodeById(section, { skipRouteUpdate: true });
-                if (options.clearAfterOpen) clearRoute();
                 return true;
             }
 
@@ -1242,6 +1240,7 @@
             if (activeNode?.section === 'projects') {
                 updatePanel();
                 updateStatusDock();
+                setRoute(getProjectRoute(index));
             }
         }
 
@@ -1354,6 +1353,9 @@
             activeNode = projectsNode;
             updatePanel();
             updateStatusDock();
+            if (!options.skipRouteUpdate) {
+                setRoute(getProjectRoute(index));
+            }
         }
 
         function openNodeById(nodeId, options = {}) {
@@ -1367,6 +1369,9 @@
             activeNode = node;
             updatePanel();
             updateStatusDock();
+            if (!options.skipRouteUpdate) {
+                setRoute(node.section === 'projects' ? '#/projects' : `#/${node.id}`);
+            }
         }
 
         function updatePanel() {
@@ -1575,7 +1580,7 @@
 
             updateStatusDock();
             init();
-            applyRouteFromHash({ clearAfterOpen: true });
+            applyRouteFromHash();
         });
 
         // Global functions
