@@ -750,6 +750,7 @@
                     'Collision-based combat mechanics and hit detection.'
                 ]
             },
+            /*
             {
                 slug: 'sigfeed',
                 name: 'SigFeed',
@@ -769,6 +770,7 @@
                     'Automated workflows for collection, storage, and personalized delivery.'
                 ]
             },
+            */
             {
                 slug: 'ee-lab-simulation',
                 name: 'EE Lab & Simulation',
