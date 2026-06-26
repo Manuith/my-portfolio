@@ -696,21 +696,21 @@
                         images: [
                             {
                                 label: 'Prototype V2 Build',
-                                note: 'Add V2 physical prototype photo here.',
+                                note: 'V2 Prototype',
                                 fitClass: 'project-image-media--photo'
                             },
                             {
                                 label: 'Prototype V2 Schematic',
-                                note: 'Add revised schematic, CAD layout, or instrumentation setup here.',
+                                note: 'Prototype V2 schematic',
                                 fitClass: 'project-image-media--schematic'
                             }
                         ],
-                        summary: 'Use this V2 tab to describe the next iteration of the harvester, what changed from V1, and how the upgraded design improved testing, measurement, or power capture.',
+                        summary: 'Changes for V2, what changed from V1, and how the upgraded design improved testing, measurement, or power capture.',
                         highlights: [
                             'List the major hardware or circuit changes introduced in Prototype V2.',
                             'Explain the updated measurement or data acquisition process used in this version.',
                             'Compare Prototype V2 performance, stability, or output against Prototype V1.',
-                            'Summarize what this version taught you and what the next iteration should improve.'
+                            'Summarize what this version taught me and what the next iteration should improve.'
                         ]
                     }
                 ]
